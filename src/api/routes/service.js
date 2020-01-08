@@ -1,11 +1,19 @@
 import { Router } from 'express';
-import { isAuth, attachCurrentUser } from '../middlewares';
 import ServiceManager from '../../services/serviceManager';
 import logger from '../../loaders/logger';
 
 const router = Router();
 
-router.post('/new', isAuth, attachCurrentUser, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
+  try {
+    const serviceList = await req.context.models.Service.findAll();
+    return res.send(serviceList);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.post('/new', async (req, res, next) => {
   const user = req.context.me;
   if (!user) return res.status(401).send('Not logged in');
   try {
@@ -18,7 +26,7 @@ router.post('/new', isAuth, attachCurrentUser, async (req, res, next) => {
   }
 });
 
-router.delete('/:serviceId', isAuth, attachCurrentUser,
+router.delete('/:serviceId',
   async (req, res, next) => {
     const user = req.context.me;
     if (!user) return res.status(401).send('Not logged in');
