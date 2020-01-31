@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import level from './level';
 import ServiceManager from '../../services/serviceManager';
 import logger from '../../loaders/logger';
 
@@ -26,13 +27,19 @@ router.post('/new', async (req, res, next) => {
   }
 });
 
+router.use('/:serviceId', (req, res, next) => {
+  // check if id exists in db
+  req.context.serviceId = req.params.serviceId;
+  return next();
+});
+
 router.delete('/:serviceId',
   async (req, res, next) => {
     const user = req.context.me;
     if (!user) return res.status(401).send('Not logged in');
     try {
       const output =
-        await ServiceManager.RemoveService(req.params.serviceId);
+        await ServiceManager.RemoveService(req.context.serviceId);
       logger.debug(output); // 1-deleted
       return res.send(`Service id:${req.params.serviceId} deleted`);
     } catch (e) {
@@ -40,5 +47,7 @@ router.delete('/:serviceId',
     }
   }
 );
+
+router.use('/:serviceId/levels', level);
 
 export default router;

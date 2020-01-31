@@ -2,6 +2,7 @@ import models from '../models';
 import logger from '../loaders/logger';
 
 const ServiceManager = {
+  // services management
   AddService: async (name, link, ownerId) => {
     logger.info(`creating new service: ${name} for ${ownerId}`);
     const newService = await models.Service.create({
@@ -20,9 +21,50 @@ const ServiceManager = {
         id: serviceId
       }
     });
+    return output;
+  },
 
+  // subscription levels
+  AddSubLevel: async (
+    name,
+    value,
+    serviceId,
+    limit = 0,
+    cyclic = 0,
+    multi = false
+  ) => {
+    logger.info(`creating new level in service ${serviceId}: ${name}`);
+    const newSubLevel = await models.Level.create({
+      name,
+      value,
+      cyclic,
+      multi,
+      limit,
+      serviceId
+    });
+    logger.info(`created new subscribtion level: ${name}`);
+    return { newSubLevel };
+  },
+
+  RemoveSubLevel: async (subLevelId) => {
+    logger.info(`removing subscription level: ${subLevelId}`);
+    const output = await models.Level.destroy({
+      where: {
+        id: subLevelId
+      }
+    });
+    return output;
+  },
+
+  ListSubLevels: async (serviceId) => {
+    const output = await models.Level.findAll({
+      where: {
+        serviceId: serviceId
+      }
+    });
     return output;
   }
+  // EditSubLevel
 };
 
 export default ServiceManager;

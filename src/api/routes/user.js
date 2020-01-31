@@ -4,6 +4,7 @@ import logger from '../../loaders/logger';
 
 const router = Router();
 
+// test endpoint - remove it
 router.get('/list', async (req, res, next) => {
   const users = await req.context.models.User.findAll();
   return res.send(users);
