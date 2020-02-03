@@ -63,8 +63,35 @@ const ServiceManager = {
       }
     });
     return output;
+  },
+
+  GetSubLevel: async (subLevelId) => {
+    const output = await models.Level.findByPk(subLevelId);
+    return output;
+  },
+
+  EditSubLevel: async (
+    subLevelId,
+    name,
+    value,
+    limit,
+    cyclic,
+    multi
+  ) => {
+    const record = await models.Level.findByPk(subLevelId);
+    if (record) {
+      logger.info('updating...');
+      const output = await record.update({
+        name: name,
+        value: value,
+        limit: limit,
+        cyclic: cyclic,
+        multi: multi
+      });
+      return output;
+    }
+    return null;
   }
-  // EditSubLevel
 };
 
 export default ServiceManager;
