@@ -24,6 +24,11 @@ const ServiceManager = {
     return output;
   },
 
+  FindServiceById: async (serviceId) => {
+    const output = await models.Service.findByPk(serviceId);
+    return output;
+  },
+
   // subscription levels
   AddSubLevel: async (
     name,

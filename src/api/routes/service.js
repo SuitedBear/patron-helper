@@ -27,7 +27,22 @@ router.post('/new', async (req, res, next) => {
   }
 });
 
-router.use('/:serviceId', (req, res, next) => {
+router.get('/:serviceId', async (req, res, next) => {
+  try {
+    const service =
+      await ServiceManager.FindServiceById(req.params.serviceId);
+    if (!service) {
+      return res.status(404).send(
+        `Service id:${req.params.serviceId} not found.`
+      );
+    }
+    return res.send(service);
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.use('/:serviceId', (req, _res, next) => {
   // check if id exists in db
   req.context.serviceId = req.params.serviceId;
   return next();

@@ -14,7 +14,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/new', async (req, res, next) => {
   try {
     const { name, value, limit } = req.body;
     logger.info(`creating sub level ${name} in service ${req.context.serviceId}`);
