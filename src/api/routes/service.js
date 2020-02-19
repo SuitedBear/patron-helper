@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import level from './level';
+import patron from './patronInService';
 import ServiceManager from '../../services/serviceManager';
 import logger from '../../loaders/logger';
 
@@ -64,5 +65,6 @@ router.delete('/:serviceId',
 );
 
 router.use('/:serviceId/levels', level);
+router.use('/:serviceId/patrons', patron);
 
 export default router;

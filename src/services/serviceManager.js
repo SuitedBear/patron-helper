@@ -96,6 +96,49 @@ const ServiceManager = {
       return output;
     }
     return null;
+  },
+
+  // subbed patrons
+  AddExistingPatron: async (
+    serviceId, patronId, levelId, active = true
+  ) => {
+    // doublechceck id's
+    logger.info(`adding patron:${patronId} to service:${serviceId}`);
+    const addedPatron = await models.PatronInService.create({
+      active,
+      serviceId,
+      patronId,
+      levelId
+    });
+    return { addedPatron };
+  },
+
+  RemovePatronInService: async (id) => {
+    logger.info(`removing patron id:${id} from service`);
+    const output = await models.PatronInService.destroy({
+      where: {
+        id
+      }
+    });
+    logger.debug(`remove result: ${output}`);
+    return output;
+  },
+
+  EditPatronInService: async (
+    id, levelId, active
+  ) => {
+    // check levelId in levels
+    logger.info(`Modifying patron:${id}`);
+    const record = await models.PatronInService.findByPk(id);
+    if (record) {
+      logger.info('Updating...');
+      const output = await record.update({
+        levelId: levelId,
+        active: active
+      });
+      return output;
+    }
+    return null;
   }
 };
 
