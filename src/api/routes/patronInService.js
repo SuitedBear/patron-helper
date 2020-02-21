@@ -27,12 +27,15 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/add', async (req, res, next) => {
   try {
-    const { patronId, levelId, active } = req.body;
+    const { patronId, levelId } = req.body;
+    const active = (req.body.active === 'true');
     logger.info(`adding patron id:${patronId} to service`);
     const newPatronInService =
       await ServiceManager.AddExistingPatron(
         req.context.serviceId,
-        patronId, levelId, active
+        Number.parseInt(patronId),
+        Number.parseInt(levelId),
+        active
       );
     return res.send(newPatronInService);
   } catch (e) {
