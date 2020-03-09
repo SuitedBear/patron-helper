@@ -4,14 +4,14 @@ const service = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     link: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     }
   });
 
   Service.associate = models => {
     Service.belongsTo(models.User);
-    Service.hasMany(models.Level, { onDelete: 'CASCADE' });
-    Service.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
+    // Service.hasMany(models.Level, { onDelete: 'CASCADE' });
+    // Service.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
   };
 
   return Service;

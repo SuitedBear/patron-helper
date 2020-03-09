@@ -5,6 +5,10 @@ const level = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
     },
+    serviceId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     value: {
       type: DataTypes.INTEGER
     },
@@ -16,8 +20,8 @@ const level = (sequelize, DataTypes) => {
   });
 
   Level.associate = models => {
-    Level.belongsTo(models.Service);
-    Level.hasMany(models.PatronInService);
+    Level.belongsTo(models.Service, { foreignKey: 'serviceId' });
+    // Level.hasMany(models.PatronInService);
   };
 
   return Level;

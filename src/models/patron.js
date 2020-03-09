@@ -4,13 +4,12 @@ const patron = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       unique: true
-    },
-    data: DataTypes.BLOB
+    }
   });
 
-  Patron.associate = models => {
-    Patron.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
-  };
+  // Patron.associate = models => {
+  //   Patron.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
+  // };
 
   return Patron;
 };
