@@ -5,11 +5,15 @@ const service = (sequelize, DataTypes) => {
     },
     link: {
       type: DataTypes.TEXT
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   });
 
   Service.associate = models => {
-    Service.belongsTo(models.User);
+    Service.belongsTo(models.User, { foreignKey: 'userId' });
     // Service.hasMany(models.Level, { onDelete: 'CASCADE' });
     // Service.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
   };

@@ -1,18 +1,23 @@
 const todo = (sequelize, DataTypes) => {
   const Todo = sequelize.define('todo', {
     status: {
-      type: DataTypes.INTEGER
+      type: DataTypes.ENUM,
+      values: ['done', 'for shipment', 'in progress', 'new']
     },
-    // date - month maybe?
-    reward: {
-      type: DataTypes.INTEGER
+    rewardId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    patronId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   });
 
   Todo.associate = models => {
     // nie kaskadować przy kasowaniu
-    Todo.belongsTo(models.PatronInService);
-    Todo.belongsTo(models.Level);
+    Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
+    Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
   };
 
   return Todo;

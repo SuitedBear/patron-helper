@@ -17,7 +17,9 @@ const models = {
   Service: sequelize.import('./service'),
   Level: sequelize.import('./level'),
   Patron: sequelize.import('./patron'),
-  PatronInService: sequelize.import('./patronInService')
+  PatronInService: sequelize.import('./patronInService'),
+  Reward: sequelize.import('./reward'),
+  Todo: sequelize.import('./todo')
 };
 
 Object.keys(models).forEach(model => {

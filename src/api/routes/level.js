@@ -20,7 +20,10 @@ router.post('/new', async (req, res, next) => {
     logger.info(`creating sub level ${name} in service ${req.context.serviceId}`);
     const newLevel =
       await ServiceManager.AddSubLevel(
-        name, value, req.context.serviceId, limit
+        name,
+        value,
+        req.context.serviceId,
+        limit
       );
     return res.send(newLevel);
   } catch (e) {

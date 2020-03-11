@@ -48,7 +48,9 @@ router.post('/:patronInServiceId', async (req, res, next) => {
     const { levelId, active } = req.body;
     logger.info(`Editing patron id:${req.params.patronInServiceId} to service`);
     const result = await ServiceManager.EditPatronInService(
-      req.params.patronInServiceId, levelId, active
+      req.params.patronInServiceId,
+      Number.parseInt(levelId),
+      active
     );
     return res.send(result);
   } catch (e) {

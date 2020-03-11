@@ -3,6 +3,7 @@ import user from './routes/user';
 import auth from './routes/auth';
 import patron from './routes/patron';
 import service from './routes/service';
+import todo from './routes/todo';
 import { isAuth, attachCurrentUser } from './middlewares';
 
 export default () => {
@@ -14,6 +15,7 @@ export default () => {
   mainRouter.use(isAuth, attachCurrentUser);
   mainRouter.use('/patrons', patron);
   mainRouter.use('/services', service);
+  mainRouter.use('/todo', todo);
 
   return mainRouter;
 };
