@@ -10,8 +10,18 @@ router.get('/', async (req, res, next) => {
     const todoList = await Todo.ListTodos();
     return res.send(todoList);
   } catch (e) {
-    next(e);
+    return next(e);
   }
 });
+
+router.get('/reward-gen', async (req, res, next) => {
+  try {
+    logger.debug('generating rewards');
+    const output = await Todo.GenerateRewards();
+    return res.send(output);
+  } catch (e) {
+    return next(e);
+  }
+})
 
 export default router;
