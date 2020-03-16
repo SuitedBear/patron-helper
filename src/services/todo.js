@@ -29,6 +29,7 @@ const Todo = {
     return null;
   },
 
+  // where to put this one?
   EditReward: async (rewardId, rewardName) => {
     const record = await models.Reward.findByPk(rewardId);
     if (record) {
@@ -41,49 +42,8 @@ const Todo = {
     return null;
   },
 
-  // autogeneration methods
-  GenerateRewards: async () => {
-    const date = new Date();
-    // JS returns month nr in 0-11 range
-    const currentMonth = new Date();
-    currentMonth.setDate(1);
-    currentMonth.setHours(0, 0, 0);
-    logger.debug(`currentMonth: ${currentMonth}`);
-    const rewardNameTemplate = ` ${date.getMonth() - 1}-${date.getFullYear()}`;
-    const levels = await models.Level.findAll({
-      include: [{
-        model: models.PatronInService,
-        where: {
-          active: true
-        }
-      }]
-    });
-    await levels.forEach(async lvl => {
-      logger.debug(`id:${lvl.id}, ${lvl.name} val:${lvl.value} type:${typeof lvl.value}`);
-      try {
-        const reward = await models.Reward.findOrCreate({
-          where: {
-            levelId: lvl.id,
-            createdAt: {
-              [Sequelize.Op.gt]: currentMonth
-            }
-          },
-          defaults: {
-            name: `${lvl.name} ${rewardNameTemplate}`,
-            createdAt: new Date()
-          }
-        });
-        logger.debug(reward);
-      } catch (e) {
-        logger.error(`error creating reward for level:${lvl.name}`);
-        logger.error(e);
-      }
-    });
-    return levels;
-  },
-
   GenerateTodos: async () => {
-
+    return null;
   }
 };
 

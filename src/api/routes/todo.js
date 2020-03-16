@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import Todo from '../../services/todo';
+import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
 
 const router = Router();
@@ -17,11 +18,11 @@ router.get('/', async (req, res, next) => {
 router.get('/reward-gen', async (req, res, next) => {
   try {
     logger.debug('generating rewards');
-    const output = await Todo.GenerateRewards();
+    const output = await RewardGenerator.GenerateRewards();
     return res.send(output);
   } catch (e) {
     return next(e);
   }
-})
+});
 
 export default router;

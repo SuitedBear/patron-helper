@@ -19,6 +19,7 @@ const patronInService = (sequelize, DataTypes) => {
   PatronInService.associate = models => {
     PatronInService.belongsTo(models.Service, { foreignKey: 'serviceId' });
     PatronInService.belongsTo(models.Patron, { foreignKey: 'patronId' });
+    // need to get rid of
     PatronInService.belongsTo(models.Level, { foreignKey: 'levelId' });
   };
 
