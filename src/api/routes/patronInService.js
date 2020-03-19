@@ -27,14 +27,14 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/add', async (req, res, next) => {
   try {
-    const { patronId, levelId } = req.body;
+    const { patronId, supportAmount } = req.body;
     const active = (req.body.active === 'true');
     logger.info(`adding patron id:${patronId} to service`);
     const newPatronInService =
       await ServiceManager.AddExistingPatron(
         req.context.serviceId,
         Number.parseInt(patronId),
-        Number.parseInt(levelId),
+        Number.parseInt(supportAmount),
         active
       );
     return res.send(newPatronInService);
@@ -45,11 +45,11 @@ router.post('/add', async (req, res, next) => {
 
 router.post('/:patronInServiceId', async (req, res, next) => {
   try {
-    const { levelId, active } = req.body;
+    const { supportAmount, active } = req.body;
     logger.info(`Editing patron id:${req.params.patronInServiceId} to service`);
     const result = await ServiceManager.EditPatronInService(
       req.params.patronInServiceId,
-      Number.parseInt(levelId),
+      Number.parseInt(supportAmount),
       active
     );
     return res.send(result);

@@ -3,14 +3,14 @@ const reward = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING
     },
-    // could use createdAt to indentify uniqueness
-    // month: {
-    //   // need to find correct date format
-    //   type: DataTypes.INTEGER
-    // },
     levelId: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    // id from patronInService, not associated
+    // 0 for multiuser reward
+    patronId: {
+      type: DataTypes.INTEGER
     }
   });
 

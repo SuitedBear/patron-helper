@@ -10,7 +10,7 @@ const patronInService = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    levelId: {
+    supportAmount: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
@@ -19,8 +19,6 @@ const patronInService = (sequelize, DataTypes) => {
   PatronInService.associate = models => {
     PatronInService.belongsTo(models.Service, { foreignKey: 'serviceId' });
     PatronInService.belongsTo(models.Patron, { foreignKey: 'patronId' });
-    // need to get rid of
-    PatronInService.belongsTo(models.Level, { foreignKey: 'levelId' });
   };
 
   return PatronInService;

@@ -100,7 +100,7 @@ const ServiceManager = {
 
   // subbed patrons
   AddExistingPatron: async (
-    serviceId, patronId, levelId, active = true
+    serviceId, patronId, supportAmount, active = true
   ) => {
     // doublechceck id's
     logger.info(`adding patron:${patronId} to service:${serviceId}`);
@@ -108,7 +108,7 @@ const ServiceManager = {
       active,
       serviceId,
       patronId,
-      levelId
+      supportAmount
     });
     return { addedPatron };
   },
@@ -125,7 +125,7 @@ const ServiceManager = {
   },
 
   EditPatronInService: async (
-    id, levelId, active
+    id, supportAmount, active
   ) => {
     // check levelId in levels
     logger.info(`Modifying patron:${id}`);
@@ -133,7 +133,7 @@ const ServiceManager = {
     if (record) {
       logger.info('Updating...');
       const output = await record.update({
-        levelId: levelId,
+        supportAmount: supportAmount,
         active: active
       });
       return output;

@@ -3,25 +3,30 @@ import Sequelize from 'sequelize';
 import models from '../models';
 import logger from '../loaders/logger';
 
-const getPastDate = (monthsPast) => {
+const getPastDate = (months) => {
   const date = new Date();
+  if (months === 0) return date;
+  const yearsPast = (Math.trunc(months / 12));
+  const monthsPast = months % 12;
+  logger.debug(monthsPast, yearsPast);
+  date.setFullYear(date.getFullYear() - yearsPast);
   date.setMonth(date.getMonth() - monthsPast + 1);
   date.setDate(1);
   date.setHours(0, 0, 0);
-  logger.debug(`${monthsPast} months from today: ${date}`);
+  logger.debug(`${months} months from today: ${date}`);
   return date;
 };
 
 // clause generators for level types
-const twoMonthCyclic = async (lvl) => {
+const cyclic = async (lvl) => {
   const date = new Date();
-  const rewardNameTemplate = ` ${date.getMonth() - 1}-${date.getFullYear()}`;
+  const rewardNameTemplate = `${date.getMonth() + 1}-${date.getFullYear()}`;
   try {
     const reward = await models.Reward.findOrCreate({
       where: {
         levelId: lvl.id,
         createdAt: {
-          [Sequelize.Op.gt]: getPastDate(2)
+          [Sequelize.Op.gt]: getPastDate(lvl.cyclic)
         }
       },
       defaults: {
@@ -37,32 +42,68 @@ const twoMonthCyclic = async (lvl) => {
   }
 };
 
-const onceForEach = (lvl) => {
-  // const monthsToQualify = lvl.cyclic;
-  const output = [];
+const onceForEach = async (lvl) => {
   logger.debug('onceForEach placeholder');
-  return output;
+  const qualifiedPatrons = await models.PatronInService.findAll({
+    where: {
+      supportAmount: {
+        [Sequelize.Op.gte]: lvl.value
+      },
+      updatedAt: {
+        [Sequelize.Op.lte]: getPastDate(lvl.cyclic)
+      }
+    }
+  });
+  const rewardList = [];
+  for (const patron of qualifiedPatrons) {
+    try {
+      const patronData = await models.Patron.findByPk(patron.patronId);
+      const reward = await models.Reward.findOrCreate({
+        where: {
+          levelId: lvl.id,
+          patronId: patron.id
+        },
+        defaults: {
+          name: `${lvl.name} for ${patronData.name}`
+        }
+      });
+      logger.debug(reward);
+      rewardList.push(reward);
+    } catch (e) {
+      logger.error(`error creating reward for level:${lvl.name}`);
+      logger.error(e);
+    }
+  }
+  return rewardList;
+};
+
+const filterUnusedLevels = async (levels) => {
+  const filter = async (lvl) => {
+    const activePatron = await models.PatronInService.findOne({
+      where: {
+        supportAmount: {
+          [Sequelize.Op.gte]: lvl.value
+        }
+      }
+    });
+    return (activePatron !== null);
+  };
+  const tempLevels = await Promise.all(levels.map(filter));
+  const filteredLevels = levels.filter((_lvl, i) => tempLevels[i]);
+  logger.debug(filteredLevels);
+  return filteredLevels;
 };
 
 const RewardGenerator = {
   GenerateRewards: async () => {
-    const levels = await models.Level.findAll({
-      include: [{
-        model: models.PatronInService,
-        where: {
-          active: true
-        }
-      }]
-    });
-    await levels.forEach(async lvl => {
-      logger.debug(`id:${lvl.id}, ${lvl.name} val:${lvl.value} type:${typeof lvl.value}`);
-      // should include different types (once, 2-month etc)
+    const levels = await filterUnusedLevels(await models.Level.findAll());
+    for (const lvl of levels) {
       if (lvl.multi) {
-        if (lvl.cyclic === 2) twoMonthCyclic(lvl);
+        await cyclic(lvl);
       } else {
-        onceForEach(lvl);
+        await onceForEach(lvl);
       }
-    });
+    }
     return levels;
   }
 };
