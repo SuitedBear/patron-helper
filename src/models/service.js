@@ -14,8 +14,6 @@ const service = (sequelize, DataTypes) => {
 
   Service.associate = models => {
     Service.belongsTo(models.User, { foreignKey: 'userId' });
-    // Service.hasMany(models.Level, { onDelete: 'CASCADE' });
-    // Service.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
   };
 
   return Service;

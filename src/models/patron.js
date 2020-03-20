@@ -7,9 +7,9 @@ const patron = (sequelize, DataTypes) => {
     }
   });
 
-  // Patron.associate = models => {
-  //   Patron.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
-  // };
+  Patron.associate = models => {
+    Patron.hasMany(models.PatronInService, { onDelete: 'CASCADE' });
+  };
 
   return Patron;
 };

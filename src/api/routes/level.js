@@ -43,14 +43,16 @@ router.get('/:subLevelId', async (req, res, next) => {
 
 router.post('/:subLevelId', async (req, res, next) => {
   try {
-    const { name, value, limit, cyclic, multi } = req.body;
+    const { name, value, limit, cyclic, multi, individual, once } = req.body;
     const result = await ServiceManager.EditSubLevel(
       Number.parseInt(req.params.subLevelId),
       name,
       value,
-      limit,
       cyclic,
-      multi
+      multi,
+      individual,
+      once,
+      limit
     );
     return res.send(result);
   } catch (e) {

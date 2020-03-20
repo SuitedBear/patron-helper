@@ -32,20 +32,24 @@ const ServiceManager = {
   // subscription levels
   AddSubLevel: async (
     name,
-    value,
     serviceId,
+    value,
     limit = 0,
     cyclic = 0,
-    multi = false
+    multi = false,
+    individual = false,
+    once = false
   ) => {
     logger.info(`creating new level in service ${serviceId}: ${name}`);
     const newSubLevel = await models.Level.create({
       name,
+      serviceId,
       value,
       cyclic,
       multi,
-      limit,
-      serviceId
+      individual,
+      once,
+      limit
     });
     logger.info(`created new subscribtion level: ${name}`);
     return { newSubLevel };
@@ -78,20 +82,26 @@ const ServiceManager = {
   EditSubLevel: async (
     subLevelId,
     name,
+    serviceId,
     value,
-    limit,
-    cyclic,
-    multi
+    limit = 0,
+    cyclic = 0,
+    multi = false,
+    individual = false,
+    once = false
   ) => {
     const record = await models.Level.findByPk(subLevelId);
     if (record) {
       logger.info('updating...');
       const output = await record.update({
-        name: name,
-        value: value,
-        limit: limit,
-        cyclic: cyclic,
-        multi: multi
+        name,
+        serviceId,
+        value,
+        cyclic,
+        multi,
+        individual,
+        once,
+        limit
       });
       return output;
     }

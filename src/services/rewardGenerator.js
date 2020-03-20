@@ -4,15 +4,17 @@ import models from '../models';
 import logger from '../loaders/logger';
 
 const getPastDate = (months) => {
-  const date = new Date();
+  let date = new Date();
   if (months === 0) return date;
   const yearsPast = (Math.trunc(months / 12));
   const monthsPast = months % 12;
   logger.debug(monthsPast, yearsPast);
-  date.setFullYear(date.getFullYear() - yearsPast);
-  date.setMonth(date.getMonth() - monthsPast + 1);
-  date.setDate(1);
-  date.setHours(0, 0, 0);
+  date = new Date((date.getFullYear() - yearsPast),
+    (date.getMonth() - monthsPast + 1));
+  // date.setFullYear(date.getFullYear() - yearsPast);
+  // date.setMonth(date.getMonth() - monthsPast + 1);
+  // date.setDate(1);
+  // date.setHours(0, 0, 0);
   logger.debug(`${months} months from today: ${date}`);
   return date;
 };

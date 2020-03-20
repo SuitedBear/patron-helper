@@ -12,7 +12,7 @@ const PatronManager = {
     logger.info(
       `searching for patron by ${(email) ? 'email' : 'name'}: ${name || email}`
     );
-    const params = (email) ? { email: email } : { name: name };
+    const params = (email) ? { email } : { name };
     const patron = await models.Patron.findAll({
       where: params
     });
@@ -25,12 +25,11 @@ const PatronManager = {
     return patron;
   },
 
-  AddPatron: async (name, email, data = null) => {
+  AddPatron: async (name, email) => {
     logger.info(`Creating new patron: ${name}`);
     const newPatron = await models.Patron.create({
       name,
-      email,
-      data
+      email
     });
     logger.debug(newPatron);
     return { newPatron };
@@ -48,14 +47,13 @@ const PatronManager = {
     return output;
   },
 
-  EditPatron: async (patronId, name, email, data) => {
+  EditPatron: async (patronId, name, email) => {
     const record = await models.Patron.findByPk(patronId);
     if (record) {
       logger.info('Updating...');
       const output = await record.update({
         name: name,
-        email: email,
-        data: data
+        email: email
       });
       return output;
     }
