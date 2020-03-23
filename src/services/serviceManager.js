@@ -29,29 +29,23 @@ const ServiceManager = {
     return output;
   },
 
-  // subscription levels
-  AddSubLevel: async (
-    name,
-    serviceId,
-    value,
-    limit = 0,
-    cyclic = 0,
-    multi = false,
-    individual = false,
-    once = false
-  ) => {
-    logger.info(`creating new level in service ${serviceId}: ${name}`);
-    const newSubLevel = await models.Level.create({
-      name,
-      serviceId,
-      value,
-      cyclic,
-      multi,
-      individual,
-      once,
-      limit
-    });
-    logger.info(`created new subscribtion level: ${name}`);
+  // should check service Id
+  // level management
+  AddSubLevel: async (params) => {
+    const queryParams = {
+      // name needs sanitization
+      name: params.name,
+      serviceId: Number.parseInt(params.serviceId),
+      value: Number.parseInt(params.value),
+      limit: (Number.parseInt(params.limit) || 0),
+      cyclic: (Number.parseInt(params.cyclic) || 0),
+      multi: (params.multi === 'true'),
+      individual: (params.individual === 'true'),
+      once: (params.once === 'true')
+    };
+    logger.info(`creating new level in service:${params.serviceId}`);
+    const newSubLevel = await models.Level.create(queryParams);
+    logger.info(`created new subscribtion level: ${params.name}`);
     return { newSubLevel };
   },
 
@@ -74,35 +68,32 @@ const ServiceManager = {
     return output;
   },
 
-  GetSubLevel: async (subLevelId) => {
-    const output = await models.Level.findByPk(subLevelId);
+  GetSubLevel: async (subLevelId, serviceId) => {
+    const output = await models.Level.findOne({
+      where: {
+        id: subLevelId,
+        serviceId
+      }
+    });
     return output;
   },
 
-  EditSubLevel: async (
-    subLevelId,
-    name,
-    serviceId,
-    value,
-    limit = 0,
-    cyclic = 0,
-    multi = false,
-    individual = false,
-    once = false
-  ) => {
-    const record = await models.Level.findByPk(subLevelId);
+  EditSubLevel: async (params) => {
+    const record = await models.Level.findByPk(params.subLevelId);
     if (record) {
       logger.info('updating...');
-      const output = await record.update({
-        name,
-        serviceId,
-        value,
-        cyclic,
-        multi,
-        individual,
-        once,
-        limit
-      });
+      const queryParams = {
+        // name needs sanitization
+        name: (params.name || record.name),
+        serviceId: Number.parseInt(params.serviceId),
+        value: (Number.parseInt(params.value) || record.value),
+        limit: (Number.parseInt(params.limit) || record.limit),
+        cyclic: (Number.parseInt(params.cyclic) || record.cyclic),
+        multi: (params.multi !== undefined) ? (params.multi === 'true') : record.multi,
+        individual: (params.individual !== undefined) ? (params.individual === 'true') : record.multi,
+        once: (params.once !== undefined) ? (params.once === 'true') : record.once
+      };
+      const output = await record.update(queryParams);
       return output;
     }
     return null;
@@ -123,32 +114,57 @@ const ServiceManager = {
     return { addedPatron };
   },
 
-  RemovePatronInService: async (id) => {
+  EditPatronInService: async (
+    id, serviceId, supportAmount, active
+  ) => {
+    // check levelId in levels
+    logger.info(`Modifying patron:${id}`);
+    const record = await models.PatronInService.findOne({
+      where: {
+        id,
+        serviceId
+      }
+    });
+    if (record) {
+      logger.info('Updating...');
+      const output = await record.update({
+        supportAmount,
+        active
+      });
+      return output;
+    }
+    return `Patron ${id} not found`;
+  },
+
+  RemovePatronInService: async (id, serviceId) => {
     logger.info(`removing patron id:${id} from service`);
     const output = await models.PatronInService.destroy({
       where: {
-        id
+        id,
+        serviceId
       }
     });
     logger.debug(`remove result: ${output}`);
     return output;
   },
 
-  EditPatronInService: async (
-    id, supportAmount, active
-  ) => {
-    // check levelId in levels
-    logger.info(`Modifying patron:${id}`);
-    const record = await models.PatronInService.findByPk(id);
-    if (record) {
-      logger.info('Updating...');
-      const output = await record.update({
-        supportAmount: supportAmount,
-        active: active
-      });
-      return output;
-    }
-    return null;
+  ListPatronsInService: async (serviceId) => {
+    const output = await models.PatronInService.findAll({
+      where: {
+        serviceId: serviceId
+      }
+    });
+    return output;
+  },
+
+  GetPatronsInService: async (subLevelId, serviceId) => {
+    const output = await models.PatronInService.findOne({
+      where: {
+        id: subLevelId,
+        serviceId
+      }
+    });
+    return output;
   }
 };
 

@@ -16,15 +16,9 @@ router.get('/', async (req, res, next) => {
 
 router.post('/new', async (req, res, next) => {
   try {
-    const { name, value, limit } = req.body;
-    logger.info(`creating sub level ${name} in service ${req.context.serviceId}`);
-    const newLevel =
-      await ServiceManager.AddSubLevel(
-        name,
-        value,
-        req.context.serviceId,
-        limit
-      );
+    logger.info(`creating sub level ${req.body.name} in service ${req.context.serviceId}`);
+    const queryParams = { serviceId: req.context.serviceId, ...req.body };
+    const newLevel = await ServiceManager.AddSubLevel(queryParams);
     return res.send(newLevel);
   } catch (e) {
     return next(e);
@@ -33,7 +27,10 @@ router.post('/new', async (req, res, next) => {
 
 router.get('/:subLevelId', async (req, res, next) => {
   try {
-    const result = await ServiceManager.GetSubLevel(req.params.subLevelId);
+    const result = await ServiceManager.GetSubLevel(
+      req.params.subLevelId,
+      Number.parseInt(req.context.serviceId)
+    );
     if (!result) return res.status(404).send('Such sub level don\'t exist');
     return res.send(result);
   } catch (e) {
@@ -43,17 +40,13 @@ router.get('/:subLevelId', async (req, res, next) => {
 
 router.post('/:subLevelId', async (req, res, next) => {
   try {
-    const { name, value, limit, cyclic, multi, individual, once } = req.body;
-    const result = await ServiceManager.EditSubLevel(
-      Number.parseInt(req.params.subLevelId),
-      name,
-      value,
-      cyclic,
-      multi,
-      individual,
-      once,
-      limit
-    );
+    logger.info(`editing sub level ${req.body.name} in service ${req.context.serviceId}`);
+    const queryParams = {
+      subLevelId: Number.parseInt(req.params.subLevelId),
+      serviceId: req.context.serviceId,
+      ...req.body
+    };
+    const result = await ServiceManager.EditSubLevel(queryParams);
     return res.send(result);
   } catch (e) {
     return next(e);

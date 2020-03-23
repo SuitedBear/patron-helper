@@ -7,7 +7,9 @@ const router = Router();
 router.get('/', async (req, res, next) => {
   try {
     const patronsInServiceList =
-      await req.context.models.PatronInService.findAll();
+      await ServiceManager.ListPatronsInService(
+        Number.parseInt(req.context.serviceId)
+      );
     return res.send(patronsInServiceList);
   } catch (e) {
     return next(e);
@@ -17,8 +19,11 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const result =
-      await req.context.models.PatronInService.findByPk(req.params.id);
-    if (!result) return res.status(404).send('PAtron not found in service.');
+      await ServiceManager.GetPatronsInService(
+        req.params.id,
+        Number.parseInt(req.context.serviceId)
+      );
+    if (!result) return res.status(404).send('Patron not found in service.');
     return res.send(result);
   } catch (e) {
     return next(e);
@@ -43,12 +48,14 @@ router.post('/add', async (req, res, next) => {
   }
 });
 
+// add notes edition !
 router.post('/:patronInServiceId', async (req, res, next) => {
   try {
     const { supportAmount, active } = req.body;
     logger.info(`Editing patron id:${req.params.patronInServiceId} to service`);
     const result = await ServiceManager.EditPatronInService(
       req.params.patronInServiceId,
+      Number.parseInt(req.context.serviceId),
       Number.parseInt(supportAmount),
       active
     );
@@ -62,7 +69,10 @@ router.delete('/:id', async (req, res, next) => {
   try {
     logger.info(`deleting patron id:${req.params.id} from service`);
     const result =
-      await ServiceManager.RemovePatronInService(req.params.id);
+      await ServiceManager.RemovePatronInService(
+        req.params.id,
+        Number.parseInt(req.context.serviceId)
+      );
     logger.debug(result);
     return res.send(`Patron id:${req.params.id} removed from service`);
   } catch (e) {

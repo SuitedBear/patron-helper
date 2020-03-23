@@ -8,7 +8,8 @@ const patronInService = (sequelize, DataTypes) => {
     },
     patronId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     supportAmount: {
       type: DataTypes.INTEGER,
