@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 
 import models from '../models';
 import logger from '../loaders/logger';
+import RewardFactory from './rewardFactory';
 
 const getPastDate = (months) => {
   let date = new Date();
@@ -19,33 +20,8 @@ const getPastDate = (months) => {
   return date;
 };
 
-// clause generators for level types
-const cyclic = async (lvl) => {
-  const date = new Date();
-  const rewardNameTemplate = `${date.getMonth() + 1}-${date.getFullYear()}`;
-  try {
-    const reward = await models.Reward.findOrCreate({
-      where: {
-        levelId: lvl.id,
-        createdAt: {
-          [Sequelize.Op.gt]: getPastDate(lvl.cyclic)
-        }
-      },
-      defaults: {
-        name: `${lvl.name} ${rewardNameTemplate}`,
-        createdAt: new Date()
-      }
-    });
-    logger.debug(reward);
-    return reward;
-  } catch (e) {
-    logger.error(`error creating reward for level:${lvl.name}`);
-    logger.error(e);
-  }
-};
-
 const onceForEach = async (lvl) => {
-  logger.debug('onceForEach placeholder');
+  logger.debug('onceForEach');
   const qualifiedPatrons = await models.PatronInService.findAll({
     where: {
       supportAmount: {
@@ -70,7 +46,12 @@ const onceForEach = async (lvl) => {
         }
       });
       logger.debug(reward);
-      rewardList.push(reward);
+      if (reward[1] === true) {
+        logger.debug(`adding ${reward[0]} to list`);
+        rewardList.push(reward);
+      } else {
+        logger.debug(`${reward[0]} exists`);
+      }
     } catch (e) {
       logger.error(`error creating reward for level:${lvl.name}`);
       logger.error(e);
@@ -80,7 +61,7 @@ const onceForEach = async (lvl) => {
 };
 
 const filterUnusedLevels = async (levels) => {
-  const filter = async (lvl) => {
+  const isActive = async (lvl) => {
     const activePatron = await models.PatronInService.findOne({
       where: {
         supportAmount: {
@@ -90,7 +71,7 @@ const filterUnusedLevels = async (levels) => {
     });
     return (activePatron !== null);
   };
-  const tempLevels = await Promise.all(levels.map(filter));
+  const tempLevels = await Promise.all(levels.map(isActive));
   const filteredLevels = levels.filter((_lvl, i) => tempLevels[i]);
   logger.debug(filteredLevels);
   return filteredLevels;
@@ -98,13 +79,10 @@ const filterUnusedLevels = async (levels) => {
 
 const RewardGenerator = {
   GenerateRewards: async () => {
+    // find way to filter this differently
     const levels = await filterUnusedLevels(await models.Level.findAll());
     for (const lvl of levels) {
-      if (lvl.multi) {
-        await cyclic(lvl);
-      } else {
-        await onceForEach(lvl);
-      }
+      await RewardFactory(lvl);
     }
     return levels;
   }
