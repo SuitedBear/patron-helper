@@ -3,15 +3,11 @@ import Sequelize from 'sequelize';
 import logger from '../loaders/logger';
 import models from '../models';
 
-// check year reverting for months > actual month
 const getPastDate = (months) => {
   let date = new Date();
-  if (months === 0) return date;
-  const yearsPast = (Math.trunc(months / 12));
-  const monthsPast = months % 12;
-  logger.debug(monthsPast, yearsPast);
-  date = new Date((date.getFullYear() - yearsPast),
-    (date.getMonth() - monthsPast + 1));
+  // workaround for getting start of the given month
+  date = new Date(date.getFullYear(),
+    (date.getMonth() - months + 1));
   return date;
 };
 
@@ -19,6 +15,41 @@ const getPastDate = (months) => {
 // once:                  chceck if exists  todo check cyclic
 // no individual no once: check cyclic,     todo for each patron
 // individual: generate user list, check once, check cyclic
+
+const generateIndividualOnce = async (lvl, patron, patronData) => {
+  if (patron.updatedAt < getPastDate(lvl.cyclic)) {
+    const reward = await models.Reward.findOrCreate({
+      where: {
+        levelId: lvl.id,
+        patronId: patron.id
+      },
+      defaults: {
+        name: `${lvl.name} for ${patronData.name}`
+      }
+    });
+    return (reward[1]) ? reward[0] : null;
+  }
+  return null;
+};
+
+const generateIndividualCyclic = async (lvl, patron, patronData) => {
+  const currentDate = new Date();
+  const dateString = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`;
+  const reward = await models.Reward.findOrCreate({
+    where: {
+      levelId: lvl.id,
+      patronId: patron.id,
+      createdAt: {
+        [Sequelize.Op.gte]: getPastDate(lvl.cyclic)
+      }
+    },
+    defaults: {
+      name: `${lvl.name} for ${patronData.name} from ${dateString}`,
+      createdAt: currentDate
+    }
+  });
+  return (reward[1]) ? reward[0] : null;
+};
 
 const generateIndividual = async (lvl) => {
   const qualifiedPatrons = await models.PatronInService.findAll({
@@ -29,15 +60,34 @@ const generateIndividual = async (lvl) => {
     }
   });
   logger.debug(qualifiedPatrons);
+  const rewardList = [];
+  for (const patron of qualifiedPatrons) {
+    let reward = null;
+    const patronData = await models.Patron.findByPk(patron.patronId);
+    if (lvl.once) {
+      reward = await generateIndividualOnce(lvl, patron, patronData);
+    } else {
+      reward = await generateIndividualCyclic(lvl, patron, patronData);
+    }
+    if (reward) {
+      rewardList.push(reward);
+    }
+  }
+  logger.debug(`added ${rewardList.length} rewards`);
+  return rewardList;
 };
 
 const generateOnce = async (lvl) => {
   const reward = await models.Reward.findOrCreate({
     where: {
       levelId: lvl.id
+    },
+    defaults: {
+      name: `${lvl.name}`,
+      patronId: 0
     }
   });
-  logger.debug(reward);
+  return (reward[1]) ? [reward[0]] : null;
 };
 
 const generateGeneral = async (lvl) => {
@@ -51,25 +101,29 @@ const generateGeneral = async (lvl) => {
     },
     defaults: {
       name: `${lvl.name} ${date.getFullYear()}-${date.getMonth() + 1}`,
-      createdAt: date
+      createdAt: date,
+      patronId: 0
     }
   });
-  logger.debug(reward);
+  return (reward[1]) ? [reward[0]] : null;
 };
 
 const RewardFactory = async (lvl) => {
+  let reward = null;
   try {
     if (lvl.individual) {
-      generateIndividual(lvl);
+      reward = generateIndividual(lvl);
     } else if (lvl.once) {
-      generateOnce(lvl);
+      reward = generateOnce(lvl);
     } else {
-      generateGeneral(lvl);
+      reward = generateGeneral(lvl);
     }
   } catch (e) {
     logger.error(`error creating reward for level:${lvl.name}`);
     logger.error(e);
   }
+  logger.debug(reward);
+  return reward;
 };
 
 export default RewardFactory;
