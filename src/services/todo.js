@@ -1,7 +1,6 @@
-import Sequelize from 'sequelize';
-
 import models from '../models';
 import logger from '../loaders/logger';
+import TodoFactory from './todoFactory';
 
 const Todo = {
   ListTodos: async () => {
@@ -43,7 +42,21 @@ const Todo = {
   },
 
   GenerateTodos: async () => {
-    return null;
+    const levels = await models.Level.findAll();
+    const todoList = [];
+    for (const lvl of levels) {
+      const rewards = await models.Reward.findAll({
+        where: {
+          levelId: lvl.id
+        }
+      });
+      for (const reward of rewards) {
+        const todos = await TodoFactory(reward, lvl);
+        if (todos.length > 0) todoList.push(...todos);
+      }
+    }
+    logger.debug(todoList);
+    return todoList;
   }
 };
 

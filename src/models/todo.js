@@ -20,6 +20,20 @@ const todo = (sequelize, DataTypes) => {
     Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
   };
 
+  Todo.createTodo = async (rewardId, patronId = 0) => {
+    const newTodo = await Todo.create({
+      status: 'new',
+      rewardId,
+      patronId
+    });
+    return newTodo;
+  };
+
+  Todo.setTodo = async (id, status, rewardId) => {
+    const todo = await Todo.findByPk(id);
+    return todo;
+  };
+
   return Todo;
 };
 

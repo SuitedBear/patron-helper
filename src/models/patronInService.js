@@ -22,6 +22,15 @@ const patronInService = (sequelize, DataTypes) => {
     PatronInService.belongsTo(models.Patron, { foreignKey: 'patronId' });
   };
 
+  PatronInService.getActive = async () => {
+    const activePatrons = await PatronInService.findAll({
+      where: {
+        active: true
+      }
+    });
+    return activePatrons;
+  };
+
   return PatronInService;
 };
 

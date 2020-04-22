@@ -56,7 +56,8 @@ const generateIndividual = async (lvl) => {
     where: {
       supportAmount: {
         [Sequelize.Op.gte]: lvl.value
-      }
+      },
+      active: true
     }
   });
   logger.debug(qualifiedPatrons);
