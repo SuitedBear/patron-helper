@@ -9,6 +9,7 @@ const Todo = {
     return todoList;
   },
 
+  // TODO: rewrite
   EditTodo: async (todoId, statusNr = 0) => {
     const status = ['done', 'for shipment', 'in progress', 'new'];
     logger.info(`Changing todo #${todoId} status to ${status[statusNr]}`);
@@ -45,15 +46,8 @@ const Todo = {
     const levels = await models.Level.findAll();
     const todoList = [];
     for (const lvl of levels) {
-      const rewards = await models.Reward.findAll({
-        where: {
-          levelId: lvl.id
-        }
-      });
-      for (const reward of rewards) {
-        const todos = await TodoFactory(reward, lvl);
-        if (todos.length > 0) todoList.push(...todos);
-      }
+      const todos = await TodoFactory(lvl);
+      if (todos.length > 0) todoList.push(...todos);
     }
     logger.debug(todoList);
     return todoList;

@@ -4,6 +4,10 @@ const todo = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       values: ['done', 'for shipment', 'in progress', 'new']
     },
+    levelId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     rewardId: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -16,22 +20,20 @@ const todo = (sequelize, DataTypes) => {
 
   Todo.associate = models => {
     // nie kaskadować przy kasowaniu
-    Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
+    Todo.belongsTo(models.Level, { foreignKey: 'levelId' });
+    // Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
     Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
-  };
-
-  Todo.createTodo = async (rewardId, patronId = 0) => {
-    const newTodo = await Todo.create({
-      status: 'new',
-      rewardId,
-      patronId
-    });
-    return newTodo;
   };
 
   Todo.setTodo = async (id, status, rewardId) => {
     const todo = await Todo.findByPk(id);
-    return todo;
+    const newStatus = status || todo.status;
+    const newRewardId = rewardId || todo.rewardId;
+    const updatedTodo = await todo.update({
+      status: newStatus,
+      rewardId: newRewardId
+    });
+    return updatedTodo;
   };
 
   return Todo;

@@ -1,15 +1,8 @@
 import Sequelize from 'sequelize';
 
 import logger from '../loaders/logger';
+import { getPastDate } from './utils';
 import models from '../models';
-
-const getPastDate = (months) => {
-  let date = new Date();
-  // workaround for getting start of the given month
-  date = new Date(date.getFullYear(),
-    (date.getMonth() - months + 1));
-  return date;
-};
 
 // multi:                 check cyclic,     single todo
 // once:                  chceck if exists  todo check cyclic

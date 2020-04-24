@@ -9,6 +9,7 @@ const reward = (sequelize, DataTypes) => {
     },
     // id from patronInService, not associated
     // 0 for multiuser reward
+    // TODO: add default 0 value (needs base rebuild)
     patronId: {
       type: DataTypes.INTEGER
     }

@@ -1,72 +1,147 @@
 import Sequelize from 'sequelize';
 
 import logger from '../loaders/logger';
+import { getPastDate } from './utils';
 import models from '../models';
 
-const getPastDate = (months) => {
-  let date = new Date();
-  // workaround for getting start of the given month
-  date = new Date(date.getFullYear(),
-    (date.getMonth() - months + 1));
-  return date;
-};
+// lvl.multi: cyclic -> get reward in cyclic
+// lvl.once: get reward -> per user -> cyclic
+// individual: per user -> cyclic+once -> get reward in cyclic+once
+// no indi no once: get reward in cyclic -> per user -> cyclic
 
-const generateSingle = async (reward) => {
-  const todo = await models.Todo.findOrCreate({
+const generateMulti = async (lvl) => {
+  const reward = await models.Reward.findOne({
     where: {
-      rewardId: reward.id
-    },
-    defaults: {
-      status: 'new',
-      patronId: reward.patronId
-    }
-  });
-  return (todo[1]) ? todo[0] : null;
-};
-
-const generateMultiple = async (reward, lvl) => {
-  const todos = [];
-  const updateTreshold = (lvl.once)
-    ? getPastDate(lvl.cyclic)
-    : reward.createdAt;
-  const eligiblePatrons = await models.PatronInService.findAll({
-    where: {
-      active: true,
-      supportAmount: {
-        [Sequelize.Op.gte]: lvl.value
-      },
-      updatedAt: {
-        [Sequelize.Op.lte]: updateTreshold
+      levelId: lvl.id,
+      createdAt: {
+        [Sequelize.Op.gte]: getPastDate(lvl.cyclic)
       }
     }
   });
-  for (const patron of eligiblePatrons) {
+  if (reward) {
     const todo = await models.Todo.findOrCreate({
       where: {
-        rewardId: reward.id,
-        patronId: patron.id
+        rewardId: reward.id
       },
       defaults: {
-        status: 'new'
+        levelId: lvl.id,
+        patronId: 0
       }
     });
-    if (todo[1]) todos.push(todo[0]);
+    if (todo[1]) return todo[0];
   }
-  return todos;
+  return null;
 };
 
-const TodoFactory = async (reward, lvl) => {
+const generateOnce = async (lvl) => {
+  const todoList = [];
+  const reward = await models.Reward.findOne({
+    where: {
+      levelId: lvl.id
+    }
+  });
+  if (reward) {
+    const eligiblePatrons = await models.PatronInService.findAll({
+      where: {
+        supportAmount: {
+          [Sequelize.Op.gte]: lvl.value
+        },
+        updatedAt: getPastDate(lvl.cyclic)
+      }
+    });
+    for (const patron of eligiblePatrons) {
+      const todo = await models.Todo.findOrCreate({
+        where: {
+          levelId: lvl.id,
+          patronId: patron.id
+        },
+        defaults: {
+          rewardId: reward.id
+        }
+      });
+      if (todo[1]) todoList.push(todo[0]);
+    }
+  }
+  return todoList;
+};
+
+const generateGeneric = async (lvl) => {
+  const todoList = [];
+  const rewardList = await models.Reward.findAll({
+    where: {
+      levelId: lvl.id
+    },
+    order: ['updatedAt', 'DESC']
+  });
+  logger.debug(rewardList);
+  if (rewardList.length > 0) {
+    const eligiblePatrons = await models.PatronInService.findAll({
+      where: {
+        supportAmount: {
+          [Sequelize.Op.gte]: lvl.value
+        }
+      }
+    });
+    for (const patron of eligiblePatrons) {
+      const todo = await models.Todo.findOrCreate({
+        where: {
+          levelId: lvl.id,
+          patronId: patron.id,
+          createdAt: {
+            [Sequelize.Op.gte]: getPastDate(lvl.cyclic)
+          }
+        },
+        defaults: {
+          createdAt: new Date(),
+          rewardId: rewardList[0].id
+        }
+      });
+      if (todo[1]) todoList.push(todo[0]);
+    }
+  }
+  return todoList;
+};
+
+// applicable for cyclic and once, generated once for each reward
+// reward generation handles condition chcecks
+const generateIndividual = async (lvl) => {
+  const todoList = [];
+  const rewardList = await models.Reward.findAll({
+    where: {
+      levelId: lvl.id
+    }
+  });
+  for (const reward of rewardList) {
+    const todo = await models.Todo.findOrCreate({
+      where: {
+        levelId: lvl.id,
+        rewardId: reward.id,
+        patronId: reward.patronId
+      }
+    });
+    if (todo[1]) todoList.push(todo[1]);
+  }
+  return todoList;
+};
+
+const TodoFactory = async (lvl) => {
   const todoList = [];
   try {
-    if (lvl.individual || lvl.multi) {
-      const todo = await generateSingle(reward);
+    if (lvl.multi) {
+      const todo = await generateMulti(lvl);
       if (todo) todoList.push(todo);
+    } else if (lvl.once) {
+      const todos = await generateOnce(lvl);
+      todoList.push(...todos);
+    } else if (lvl.individual) {
+      const todos = await generateIndividual(lvl);
+      todoList.push(...todos);
     } else {
-      const todos = await generateMultiple(reward, lvl);
-      if (todos.length > 0) todoList.push(...todos);
+      const todos = await generateGeneric(lvl);
+      todoList.push(...todos);
     }
   } catch (e) {
-    logger.error(`error creating todos for reward:${reward.name}`);
+    logger.error(`error creating todos for level:${lvl.name}`);
     logger.error(e);
   }
   logger.debug(todoList);
