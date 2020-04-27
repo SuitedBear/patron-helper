@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import ServiceManager from '../../services/serviceManager';
+import PatronInServiceManager from '../../services/patronInServiceManager';
 import logger from '../../loaders/logger';
 
 const router = Router();
@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', async (req, res, next) => {
   try {
     const patronsInServiceList =
-      await ServiceManager.ListPatronsInService(
+      await PatronInServiceManager.ListPatronsInService(
         Number.parseInt(req.context.serviceId)
       );
     return res.send(patronsInServiceList);
@@ -19,7 +19,7 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const result =
-      await ServiceManager.GetPatronsInService(
+      await PatronInServiceManager.GetPatronsInService(
         req.params.id,
         Number.parseInt(req.context.serviceId)
       );
@@ -36,7 +36,7 @@ router.post('/add', async (req, res, next) => {
     const active = (req.body.active === 'true');
     logger.info(`adding patron id:${patronId} to service`);
     const newPatronInService =
-      await ServiceManager.AddExistingPatron(
+      await PatronInServiceManager.AddExistingPatron(
         req.context.serviceId,
         Number.parseInt(patronId),
         Number.parseInt(supportAmount),
@@ -48,12 +48,30 @@ router.post('/add', async (req, res, next) => {
   }
 });
 
+router.post('/new', async (req, res, next) => {
+  try {
+    const data = {
+      email: req.body.email,
+      name: req.body.name,
+      active: (req.body.active === 'true'),
+      supportAmount: Number.parseInt(req.body.supportAmount, 10)
+    };
+    const newPatron = await PatronInServiceManager.AddNewPatron(
+      req.context.serviceId,
+      data
+    );
+    return res.send(newPatron);
+  } catch (e) {
+    return next(e);
+  }
+});
+
 // add notes edition !
 router.post('/:patronInServiceId', async (req, res, next) => {
   try {
     const { supportAmount, active } = req.body;
     logger.info(`Editing patron id:${req.params.patronInServiceId} to service`);
-    const result = await ServiceManager.EditPatronInService(
+    const result = await PatronInServiceManager.EditPatronInService(
       req.params.patronInServiceId,
       Number.parseInt(req.context.serviceId),
       Number.parseInt(supportAmount),
@@ -69,7 +87,7 @@ router.delete('/:id', async (req, res, next) => {
   try {
     logger.info(`deleting patron id:${req.params.id} from service`);
     const result =
-      await ServiceManager.RemovePatronInService(
+      await PatronInServiceManager.RemovePatronInService(
         req.params.id,
         Number.parseInt(req.context.serviceId)
       );
