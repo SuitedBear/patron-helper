@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import PatronInServiceManager from '../../services/patronInServiceManager';
 import logger from '../../loaders/logger';
+import PatronInServiceManager from '../../services/patronInServiceManager';
+import Importer from '../../services/importer';
 
 const router = Router();
 
@@ -61,6 +62,20 @@ router.post('/new', async (req, res, next) => {
       data
     );
     return res.send(newPatron);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.post('/batch', async (req, res, next) => {
+  try {
+    logger.info('batch inserting patron data');
+    const result = await Importer.ImportData(
+      req.context.serviceId,
+      req.body
+    );
+    logger.debug(`batch result: ${result}`);
+    return res.send(result);
   } catch (e) {
     return next(e);
   }
