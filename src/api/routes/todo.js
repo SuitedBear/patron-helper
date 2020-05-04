@@ -30,6 +30,7 @@ router.get('/reward-gen', async (req, res, next) => {
   try {
     logger.debug('generating rewards');
     const output = await RewardGenerator.GenerateRewards();
+    logger.debug('rewards generated');
     return res.send(output);
   } catch (e) {
     return next(e);

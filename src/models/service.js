@@ -1,7 +1,8 @@
 const service = (sequelize, DataTypes) => {
   const Service = sequelize.define('service', {
     name: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      unique: true
     },
     link: {
       type: DataTypes.TEXT

@@ -73,7 +73,7 @@ const generateGeneric = async (lvl) => {
     },
     order: ['updatedAt', 'DESC']
   });
-  logger.debug(rewardList);
+  logger.debug('should have reward list for todo generation');
   if (rewardList.length > 0) {
     const eligiblePatrons = await models.PatronInService.findAll({
       where: {
@@ -119,7 +119,7 @@ const generateIndividual = async (lvl) => {
         patronId: reward.patronId
       }
     });
-    if (todo[1]) todoList.push(todo[1]);
+    if (todo[1]) todoList.push(todo[0]);
   }
   return todoList;
 };
@@ -144,7 +144,7 @@ const TodoFactory = async (lvl) => {
     logger.error(`error creating todos for level:${lvl.name}`);
     logger.error(e);
   }
-  logger.debug(todoList);
+  logger.debug('should have todo list generated');
   return todoList;
 };
 

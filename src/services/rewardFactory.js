@@ -53,7 +53,7 @@ const generateIndividual = async (lvl) => {
       active: true
     }
   });
-  logger.debug(qualifiedPatrons);
+  logger.debug('should have qualified patrons for generateIndividual');
   const rewardList = [];
   for (const patron of qualifiedPatrons) {
     let reward = null;
@@ -116,7 +116,7 @@ const RewardFactory = async (lvl) => {
     logger.error(`error creating reward for level:${lvl.name}`);
     logger.error(e);
   }
-  logger.debug(reward);
+  logger.debug('RewardFactory should return reward');
   return reward;
 };
 

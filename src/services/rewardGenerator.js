@@ -15,9 +15,11 @@ const filterUnusedLevels = async (levels) => {
     });
     return (activePatron !== null);
   };
+  logger.debug('levels promise mapping');
   const tempLevels = await Promise.all(levels.map(isActive));
+  logger.debug('level filtering');
   const filteredLevels = levels.filter((_lvl, i) => tempLevels[i]);
-  logger.debug(filteredLevels);
+  logger.debug('should have filtered levels');
   return filteredLevels;
 };
 

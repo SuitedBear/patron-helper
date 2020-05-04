@@ -49,7 +49,7 @@ const Todo = {
       const todos = await TodoFactory(lvl);
       if (todos.length > 0) todoList.push(...todos);
     }
-    logger.debug(todoList);
+    logger.debug('should have all todos generated');
     return todoList;
   }
 };
