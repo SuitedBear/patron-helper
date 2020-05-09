@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import AuthService from '../../services/auth';
+import AuthService, { ValidationError } from '../../services/auth';
 import logger from '../../loaders/logger';
 
 const router = Router();
@@ -23,6 +23,9 @@ router.post('/login', async (req, res, next) => {
     logger.info(`User ${user.user.name} logged in`);
     return res.send(user);
   } catch (e) {
+    if (e instanceof ValidationError) {
+      return res.status(401).send('Incorrect credentials!');
+    }
     logger.error('Logging in failed: ', e);
     return next(e);
   }

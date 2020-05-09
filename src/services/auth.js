@@ -16,6 +16,13 @@ const generateToken = (user) => {
   return jwt.sign({ data }, signature, { expiresIn: expiration });
 };
 
+class ValidationError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
 const AuthService = {
   SignUp: async (name, email, password) => {
     const salt = randomBytes(32);
@@ -44,12 +51,12 @@ const AuthService = {
     });
 
     if (!userRecord) {
-      throw new Error('User not found');
+      throw new ValidationError('User not found');
     } else {
       const correctPassword =
         await argon2.verify(userRecord.pass, password);
       if (!correctPassword) {
-        throw new Error('Incorrect password');
+        throw new ValidationError('Incorrect password');
       }
     }
 
@@ -63,4 +70,5 @@ const AuthService = {
   }
 };
 
+export { ValidationError };
 export default AuthService;

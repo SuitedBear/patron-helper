@@ -112,6 +112,7 @@ const generateIndividual = async (lvl) => {
     }
   });
   for (const reward of rewardList) {
+    // check if patron still active
     const todo = await models.Todo.findOrCreate({
       where: {
         levelId: lvl.id,
