@@ -7,6 +7,8 @@ const router = Router();
 router.post('/signup', async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
+    logger.debug('trying to sign up with data:');
+    logger.debug(`${name}, ${email}, pass ${(password) ? 'present' : 'absent'}`);
     const user = await AuthService.SignUp(name, email, password);
     logger.info(`Signing up successful: ${user.user.name}`);
     return res.send(user);

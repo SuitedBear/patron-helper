@@ -25,6 +25,10 @@ class ValidationError extends Error {
 
 const AuthService = {
   SignUp: async (name, email, password) => {
+    if (!name || !email || !password) {
+      throw new ValidationError('Lack of data to create new user!');
+    }
+
     const salt = randomBytes(32);
     const passwordHash = await argon2.hash(password, { salt });
 
@@ -34,6 +38,10 @@ const AuthService = {
       salt: salt.toString('hex'),
       email
     });
+
+    if (!newUser) {
+      throw new ValidationError('Signup failed!');
+    }
 
     return {
       user: {
