@@ -8,7 +8,11 @@ const router = Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const serviceList = await req.context.models.Service.findAll();
+    const serviceList = await req.context.models.Service.findAll({
+      where: {
+        userId: req.context.me.id
+      }
+    });
     return res.send(serviceList);
   } catch (e) {
     return next(e);

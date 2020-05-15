@@ -1,6 +1,9 @@
 import logger from '../loaders/logger';
 import PatronsMngr from './patronInServiceManager';
 
+// @TODO: should filter existing patrons
+// and set active: false for those that aren't on new list
+
 const Importer = {
   dataMap: new Map([
     ['Nazwa patrona', 'name'],

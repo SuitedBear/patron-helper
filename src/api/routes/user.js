@@ -17,4 +17,6 @@ router.get('/session', isAuth, attachCurrentUser, (req, res) => {
   return res.send(`logged as ${user.name}`);
 });
 
+// @TODO: add user edit (pass) with req authorization
+
 export default router;
