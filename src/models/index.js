@@ -7,6 +7,9 @@ const sequelize = new Sequelize(
   config.dbUser,
   config.dbPassword,
   {
+    host: (config.env === 'development')
+      ? 'localhost'
+      : config.dbHost,
     port: config.dbPort,
     dialect: 'postgres'
   }

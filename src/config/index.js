@@ -14,11 +14,13 @@ if (process.env.NODE_ENV === 'development') {
 
 export default {
   // app config
+  env: process.env.NODE_ENV,
   port: parseInt(process.env.PORT, 10),
   dbEraseOnSync: (process.env.DB_ERASE_ON_SYNC === 'true'),
   // logs
   logLevel: (process.env.LOG_LEVEL || 'silly'),
   // DB config
+  dbHost: process.env.DB_HOST,
   dbName: process.env.DB_NAME,
   dbPort: process.env.DB_PORT,
   dbUser: process.env.DB_USER,
