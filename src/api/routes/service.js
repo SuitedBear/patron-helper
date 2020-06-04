@@ -2,6 +2,7 @@ import { Router } from 'express';
 import level from './level';
 import patron from './patronInService';
 import ServiceManager from '../../services/serviceManager';
+import Todo from '../../services/todo';
 import logger from '../../loaders/logger';
 
 const router = Router();
@@ -67,6 +68,17 @@ router.delete('/:serviceId',
     }
   }
 );
+
+router.get('/:serviceId/complex', async (req, res, next) => {
+  try {
+    logger.debug(`get complex todo list for service: ${req.context.serviceId}`);
+    const todoList =
+      await Todo.ComplexListTodos(req.context.serviceId);
+    return res.send(todoList);
+  } catch (e) {
+    return next(e);
+  }
+});
 
 router.use('/:serviceId/levels', level);
 router.use('/:serviceId/patrons', patron);

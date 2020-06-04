@@ -23,6 +23,11 @@ const todo = (sequelize, DataTypes) => {
     Todo.belongsTo(models.Level, { foreignKey: 'levelId' });
     // Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
     Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
+    // need user "0" for multi rewards
+    Todo.belongsTo(models.PatronInService, {
+      foreignKey: 'patronId',
+      constrains: false
+    });
   };
 
   Todo.setTodo = async (id, status, rewardId) => {

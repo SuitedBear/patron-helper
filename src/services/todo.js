@@ -9,6 +9,35 @@ const Todo = {
     return todoList;
   },
 
+  ComplexListTodos: async (serviceId) => {
+    const todoList = models.Todo.findAll({
+      where: {
+        '$level.serviceId$': serviceId
+      },
+      include: [
+        {
+          model: models.PatronInService,
+          attributes: ['patronId', 'notes', 'active', 'supportAmount'],
+          include: {
+            model: models.Patron,
+            attributes: ['name', 'email']
+          }
+        },
+        {
+          model: models.Reward,
+          attributes: ['name']
+        },
+        {
+          model: models.Level,
+          as: 'level',
+          attributes: ['serviceId']
+        }
+      ]
+    });
+    // jsonize?
+    return todoList;
+  },
+
   // TODO: rewrite
   EditTodo: async (todoId, statusNr = 0) => {
     const status = ['done', 'for shipment', 'in progress', 'new'];
