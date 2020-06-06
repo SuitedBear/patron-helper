@@ -25,7 +25,7 @@ const generateMulti = async (lvl) => {
       },
       defaults: {
         levelId: lvl.id,
-        patronId: 0
+        patronId: 1
       }
     });
     if (todo[1]) return todo[0];
@@ -71,7 +71,7 @@ const generateGeneric = async (lvl) => {
     where: {
       levelId: lvl.id
     },
-    order: ['updatedAt', 'DESC']
+    order: [['updatedAt', 'DESC']]
   });
   logger.debug('should have reward list for todo generation');
   if (rewardList.length > 0) {

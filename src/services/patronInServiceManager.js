@@ -59,6 +59,21 @@ const PatronInServiceManager = {
     return output;
   },
 
+  ComplexListPatrons: async (serviceId) => {
+    const patronList = models.PatronInService.findAll({
+      where: {
+        serviceId
+      },
+      include: [
+        {
+          model: models.Patron,
+          attributes: ['name', 'email']
+        }
+      ]
+    });
+    return patronList;
+  },
+
   GetPatronsInService: async (id, serviceId) => {
     const output = await models.PatronInService.findOne({
       where: {

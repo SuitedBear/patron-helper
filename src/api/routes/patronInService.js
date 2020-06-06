@@ -17,6 +17,18 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+router.get('/complex', async (req, res, next) => {
+  try {
+    const patronsComplexList =
+      await PatronInServiceManager.ComplexListPatrons(
+        Number.parseInt(req.context.serviceId)
+      );
+    return res.send(patronsComplexList);
+  } catch (e) {
+    return next(e);
+  }
+});
+
 router.get('/:id', async (req, res, next) => {
   try {
     const result =
