@@ -38,6 +38,19 @@ const PatronInServiceManager = {
     return `Patron ${id} not found`;
   },
 
+  // apparently doesn't affect updatedAt
+  BulkEdit: async (objList, fieldList) => {
+    const result = await models.PatronInService
+      .bulkCreate(
+        objList,
+        {
+          updateOnDuplicate: fieldList
+        }
+      );
+    logger.debug(result);
+    return 'bulkedit';
+  },
+
   RemovePatronInService: async (id, serviceId) => {
     logger.info(`removing patron id:${id} from service`);
     const output = await models.PatronInService.destroy({
@@ -69,7 +82,8 @@ const PatronInServiceManager = {
           model: models.Patron,
           attributes: ['name', 'email']
         }
-      ]
+      ],
+      raw: true
     });
     return patronList;
   },

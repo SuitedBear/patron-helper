@@ -24,9 +24,13 @@ const filterUnusedLevels = async (levels) => {
 };
 
 const RewardGenerator = {
-  GenerateRewards: async () => {
+  GenerateRewards: async (serviceId) => {
     // find way to filter this differently
-    const levels = await filterUnusedLevels(await models.Level.findAll());
+    const levels = await filterUnusedLevels(await models.Level.findAll({
+      where: {
+        serviceId
+      }
+    }));
     const rewards = [];
     for (const lvl of levels) {
       const reward = await RewardFactory(lvl);

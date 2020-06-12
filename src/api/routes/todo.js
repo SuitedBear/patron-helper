@@ -47,6 +47,19 @@ router.get('/todo-gen', async (req, res, next) => {
   }
 });
 
+router.get('/generate', async (req, res, next) => {
+  try {
+    logger.debug('generating rewards and todos');
+    await RewardGenerator.GenerateRewards();
+    logger.debug('rewards generated');
+    await Todo.GenerateTodos();
+    logger.info('rewards and todos generated');
+    return res.send('rewards and todos generated');
+  } catch (e) {
+    return next(e);
+  }
+});
+
 router.post('/:id', async (req, res, next) => {
   try {
     const { status, rewardId } = req.body;

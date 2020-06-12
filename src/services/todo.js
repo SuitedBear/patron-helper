@@ -32,10 +32,23 @@ const Todo = {
           as: 'level',
           attributes: ['serviceId']
         }
-      ]
+      ],
+      raw: true
     });
-    // jsonize?
     return todoList;
+  },
+
+  // apparently doesn't affect updatedAt
+  BulkEdit: async (objList, fieldList) => {
+    const result = await models.Todo
+      .bulkCreate(
+        objList,
+        {
+          updateOnDuplicate: fieldList
+        }
+      );
+    logger.debug(result);
+    return 'bulkedit todo';
   },
 
   // TODO: rewrite
@@ -71,8 +84,12 @@ const Todo = {
     return null;
   },
 
-  GenerateTodos: async () => {
-    const levels = await models.Level.findAll();
+  GenerateTodos: async (serviceId) => {
+    const levels = await models.Level.findAll({
+      where: {
+        serviceId
+      }
+    });
     const todoList = [];
     for (const lvl of levels) {
       const todos = await TodoFactory(lvl);

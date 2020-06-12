@@ -29,6 +29,19 @@ router.get('/complex', async (req, res, next) => {
   }
 });
 
+router.post('/bulkedit', async (req, res, next) => {
+  try {
+    const { data, fields } = req.body;
+    const result = await PatronInServiceManager.BulkEdit(
+      data,
+      fields
+    );
+    return res.send(result);
+  } catch (e) {
+    return next(e);
+  }
+});
+
 router.get('/:id', async (req, res, next) => {
   try {
     const result =

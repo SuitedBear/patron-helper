@@ -3,6 +3,7 @@ import level from './level';
 import patron from './patronInService';
 import ServiceManager from '../../services/serviceManager';
 import Todo from '../../services/todo';
+import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
 
 const router = Router();
@@ -75,6 +76,32 @@ router.get('/:serviceId/complex', async (req, res, next) => {
     const todoList =
       await Todo.ComplexListTodos(req.context.serviceId);
     return res.send(todoList);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.post('/:serviceId/bulkedittodo', async (req, res, next) => {
+  try {
+    const { data, fields } = req.body;
+    const result = await Todo.BulkEdit(
+      data,
+      fields
+    );
+    return res.send(result);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.get('/:serviceId/generate', async (req, res, next) => {
+  try {
+    logger.debug('generating rewards and todos');
+    await RewardGenerator.GenerateRewards(req.context.serviceId);
+    logger.debug('rewards generated');
+    await Todo.GenerateTodos(req.context.serviceId);
+    logger.info('rewards and todos generated');
+    return res.send('rewards and todos generated');
   } catch (e) {
     return next(e);
   }
