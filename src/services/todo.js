@@ -33,7 +33,7 @@ const Todo = {
           attributes: ['serviceId']
         }
       ],
-      raw: true
+      raw: false
     });
     return todoList;
   },

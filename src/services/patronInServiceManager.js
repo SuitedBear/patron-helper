@@ -83,7 +83,7 @@ const PatronInServiceManager = {
           attributes: ['name', 'email']
         }
       ],
-      raw: true
+      raw: false
     });
     return patronList;
   },
