@@ -1,4 +1,4 @@
-import models from '../models';
+import models, { sequelize } from '../models';
 import logger from '../loaders/logger';
 
 const PatronInServiceManager = {
@@ -38,17 +38,39 @@ const PatronInServiceManager = {
     return `Patron ${id} not found`;
   },
 
-  // apparently doesn't affect updatedAt
-  BulkEdit: async (objList, fieldList) => {
-    const result = await models.PatronInService
-      .bulkCreate(
-        objList,
-        {
-          updateOnDuplicate: fieldList
-        }
+  PatronQueryArray: (patronInServiceList, t) => {
+    const patronList = patronInServiceList.map(obj => obj.patron);
+    const newQueryArray = [];
+    for (const pos of patronInServiceList) {
+      newQueryArray.push(
+        models.PatronInService.findByPk(pos.id, { transaction: t })
+          .then(record => record.update({
+            notes: pos.notes
+          }, { transaction: t }))
       );
-    logger.debug(result);
-    return 'bulkedit';
+    }
+    for (const pos of patronList) {
+      newQueryArray.push(
+        models.Patron.findByPk(pos.id, { transaction: t })
+          .then(record => record.update({
+            name: pos.name
+          }, { transaction: t }))
+      );
+    }
+    return newQueryArray;
+  },
+
+  BulkEdit: async (patronInServiceList) => {
+    const result = await sequelize.transaction(t => {
+      const queryTable =
+        PatronInServiceManager.PatronQueryArray(patronInServiceList, t);
+      return Promise.all(queryTable);
+    })
+      .catch(e => {
+        logger.error(e);
+        throw new Error(e);
+      });
+    return result;
   },
 
   RemovePatronInService: async (id, serviceId) => {
@@ -80,7 +102,7 @@ const PatronInServiceManager = {
       include: [
         {
           model: models.Patron,
-          attributes: ['name', 'email']
+          attributes: ['id', 'name', 'email']
         }
       ],
       raw: false

@@ -88,7 +88,11 @@ router.post('/:serviceId/bulkedittodo', async (req, res, next) => {
       data,
       fields
     );
-    return res.send(result);
+    logger.debug(result);
+    const todoComplexList = await Todo.ComplexListTodos(
+      Number.parseInt(req.context.serviceId)
+    );
+    return res.send(todoComplexList);
   } catch (e) {
     return next(e);
   }

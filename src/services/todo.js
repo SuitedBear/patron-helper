@@ -1,6 +1,7 @@
-import models from '../models';
+import models, { sequelize } from '../models';
 import logger from '../loaders/logger';
 import TodoFactory from './todoFactory';
+import PatronInServiceManager from './patronInServiceManager';
 
 const Todo = {
   ListTodos: async () => {
@@ -17,10 +18,10 @@ const Todo = {
       include: [
         {
           model: models.PatronInService,
-          attributes: ['patronId', 'notes', 'active', 'supportAmount'],
+          attributes: ['id', 'patronId', 'notes', 'active', 'supportAmount'],
           include: {
             model: models.Patron,
-            attributes: ['name', 'email']
+            attributes: ['id', 'name', 'email']
           }
         },
         {
@@ -33,6 +34,7 @@ const Todo = {
           attributes: ['serviceId']
         }
       ],
+      attributes: ['id', 'status', 'rewardId', 'updatedAt'],
       raw: false
     });
     return todoList;
@@ -40,15 +42,29 @@ const Todo = {
 
   // apparently doesn't affect updatedAt
   BulkEdit: async (objList, fieldList) => {
-    const result = await models.Todo
-      .bulkCreate(
-        objList,
-        {
-          updateOnDuplicate: fieldList
-        }
-      );
-    logger.debug(result);
-    return 'bulkedit todo';
+    const patronsInServiceList = objList.map(obj => obj.patronInService);
+    const result = await sequelize.transaction(t => {
+      const queryTable =
+        PatronInServiceManager.PatronQueryArray(
+          patronsInServiceList,
+          t
+        );
+      for (const pos of objList) {
+        queryTable.push(
+          models.Todo.findByPk(pos.id, { transaction: t })
+            .then(record => record.update({
+              status: pos.status,
+              rewardId: pos.rewardId
+            }, { transaction: t }))
+        );
+      }
+      return Promise.all(queryTable);
+    })
+      .catch(e => {
+        logger.error(e);
+        throw new Error(e);
+      });
+    return result;
   },
 
   // TODO: rewrite

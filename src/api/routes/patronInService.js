@@ -36,7 +36,12 @@ router.post('/bulkedit', async (req, res, next) => {
       data,
       fields
     );
-    return res.send(result);
+    logger.debug(result);
+    const patronsComplexList =
+      await PatronInServiceManager.ComplexListPatrons(
+        Number.parseInt(req.context.serviceId)
+      );
+    return res.send(patronsComplexList);
   } catch (e) {
     return next(e);
   }
