@@ -25,7 +25,8 @@ const level = (sequelize, DataTypes) => {
     once: DataTypes.BOOLEAN,
     // how many patrons could qualify
     // 0 - no limit
-    limit: DataTypes.INTEGER
+    limit: DataTypes.INTEGER,
+    statusList: DataTypes.ARRAY(DataTypes.INTEGER)
   });
 
   Level.associate = models => {

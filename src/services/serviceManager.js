@@ -45,7 +45,8 @@ const ServiceManager = {
       cyclic: (Number.parseInt(params.cyclic) || 0),
       multi: (params.multi === 'true'),
       individual: (params.individual === 'true'),
-      once: (params.once === 'true')
+      once: (params.once === 'true'),
+      statusList: (params.statusList || [1, 2])
     };
     logger.info(`creating new level in service:${params.serviceId}`);
     const newSubLevel = await models.Level.create(queryParams);
@@ -95,7 +96,8 @@ const ServiceManager = {
         cyclic: (Number.parseInt(params.cyclic) || record.cyclic),
         multi: (params.multi !== undefined) ? (params.multi === 'true') : record.multi,
         individual: (params.individual !== undefined) ? (params.individual === 'true') : record.multi,
-        once: (params.once !== undefined) ? (params.once === 'true') : record.once
+        once: (params.once !== undefined) ? (params.once === 'true') : record.once,
+        statusList: (params.statusList || record.statusList)
       };
       const output = await record.update(queryParams);
       return output;

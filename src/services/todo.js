@@ -31,7 +31,7 @@ const Todo = {
         {
           model: models.Level,
           as: 'level',
-          attributes: ['serviceId']
+          attributes: ['serviceId', 'statusList']
         }
       ],
       attributes: ['id', 'status', 'rewardId', 'updatedAt'],
@@ -51,6 +51,7 @@ const Todo = {
         );
       for (const pos of objList) {
         queryTable.push(
+          // review method and add status check
           models.Todo.findByPk(pos.id, { transaction: t })
             .then(record => record.update({
               status: pos.status,
@@ -67,25 +68,25 @@ const Todo = {
     return result;
   },
 
-  // TODO: rewrite
-  EditTodo: async (todoId, statusNr = 0) => {
-    const status = ['done', 'for shipment', 'in progress', 'new'];
-    logger.info(`Changing todo #${todoId} status to ${status[statusNr]}`);
-    const record = await models.Todo.findByPk(todoId);
-    if (record) {
-      logger.info('updating...');
-      try {
-        const output = await record.update({
-          status: status[statusNr]
-        });
-        return output;
-      } catch (e) {
-        logger.debug(`error updating todo #${todoId} status: ${e}`);
-        return null;
-      }
-    }
-    return null;
-  },
+  // // TODO: rewrite
+  // EditTodo: async (todoId, statusNr = 0) => {
+  //   const status = ['done', 'for shipment', 'in progress', 'new'];
+  //   logger.info(`Changing todo #${todoId} status to ${status[statusNr]}`);
+  //   const record = await models.Todo.findByPk(todoId);
+  //   if (record) {
+  //     logger.info('updating...');
+  //     try {
+  //       const output = await record.update({
+  //         status: status[statusNr]
+  //       });
+  //       return output;
+  //     } catch (e) {
+  //       logger.debug(`error updating todo #${todoId} status: ${e}`);
+  //       return null;
+  //     }
+  //   }
+  //   return null;
+  // },
 
   // where to put this one?
   EditReward: async (rewardId, rewardName) => {

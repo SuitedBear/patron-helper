@@ -18,6 +18,7 @@ const sequelize = new Sequelize(
 const models = {
   User: sequelize.import('./user'),
   Service: sequelize.import('./service'),
+  Status: sequelize.import('./status'),
   Level: sequelize.import('./level'),
   Patron: sequelize.import('./patron'),
   PatronInService: sequelize.import('./patronInService'),
@@ -32,6 +33,13 @@ Object.keys(models).forEach(model => {
 });
 
 const populateDatabase = async () => {
+  await models.Status.create({ id: 1, name: 'done' });
+  await models.Status.create({ id: 2, name: 'new' });
+  await models.Patron.create({
+    id: 1,
+    name: 'multiuser',
+    email: 'multi@user'
+  });
   logger.info('Database populated');
 };
 

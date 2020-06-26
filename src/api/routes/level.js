@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import ServiceManager from '../../services/serviceManager';
 import logger from '../../loaders/logger';
+import models from '../../models';
 
 const router = Router();
 
@@ -9,6 +10,15 @@ router.get('/', async (req, res, next) => {
     const subLevelsList =
       await ServiceManager.ListSubLevels(Number.parseInt(req.context.serviceId, 10));
     return res.send(subLevelsList);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.get('/', async (req, res, next) => {
+  try {
+    const statusList = await models.Status.findAll();
+    return res.send(statusList);
   } catch (e) {
     return next(e);
   }

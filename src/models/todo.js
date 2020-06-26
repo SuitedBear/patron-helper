@@ -1,8 +1,9 @@
 const todo = (sequelize, DataTypes) => {
   const Todo = sequelize.define('todo', {
     status: {
-      type: DataTypes.ENUM,
-      values: ['done', 'for shipment', 'in progress', 'new']
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 2
     },
     levelId: {
       type: DataTypes.INTEGER,
@@ -23,7 +24,7 @@ const todo = (sequelize, DataTypes) => {
     Todo.belongsTo(models.Level, { foreignKey: 'levelId' });
     // Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
     Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
-    // need user "0" for multi rewards
+    // need user "1" for multi rewards
     Todo.belongsTo(models.PatronInService, {
       foreignKey: 'patronId',
       constrains: false
