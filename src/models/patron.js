@@ -1,9 +1,17 @@
 const patron = (sequelize, DataTypes) => {
   const Patron = sequelize.define('patron', {
     name: DataTypes.STRING,
+    firstName: DataTypes.STRING,
+    lastName: DataTypes.STRING,
     email: {
       type: DataTypes.STRING,
-      unique: true
+      unique: true,
+      allowNull: false
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
     }
   });
 

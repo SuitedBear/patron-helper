@@ -29,7 +29,8 @@ const PatronManager = {
     logger.info(`Creating new patron: ${name}`);
     const newPatron = await models.Patron.create({
       name,
-      email
+      email,
+      address: ''
     });
     logger.debug(newPatron);
     return { newPatron };
@@ -47,13 +48,14 @@ const PatronManager = {
     return output;
   },
 
-  EditPatron: async (patronId, name, email) => {
+  EditPatron: async (patronId, name, email, address) => {
     const record = await models.Patron.findByPk(patronId);
     if (record) {
       logger.info('Updating...');
       const output = await record.update({
         name: name,
-        email: email
+        email: email,
+        address: address
       });
       return output;
     }

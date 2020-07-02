@@ -14,6 +14,23 @@ const patronInService = (sequelize, DataTypes) => {
     supportAmount: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    lastPayment: {
+      type: DataTypes.DATE
+    },
+    surcharge: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    totalMonths: {
+      type: DataTypes.INTEGER
+    },
+    totalAmount: {
+      type: DataTypes.INTEGER
+    },
+    endDate: {
+      type: DataTypes.DATEONLY
     }
   });
 

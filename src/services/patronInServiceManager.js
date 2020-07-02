@@ -134,6 +134,11 @@ const PatronInServiceManager = {
       defaults: {
         active: data.active,
         supportAmount: data.supportAmount,
+        lastPayment: data.lastPayment,
+        surcharge: data.surcharge,
+        totalMonths: data.totalMonths,
+        totalAmount: data.totalAmount,
+        endDate: data.endDate,
         serviceId
       }
     });
@@ -142,7 +147,12 @@ const PatronInServiceManager = {
         newPatronInService[0].active !== data.active) {
         const updatedPatron = newPatronInService[0].update({
           supportAmount: data.supportAmount,
-          active: data.active
+          active: data.active,
+          lastPayment: data.lastPayment,
+          surcharge: data.surcharge,
+          totalMonths: data.totalMonths,
+          totalAmount: data.totalAmount,
+          endDate: data.endDate
         });
         return updatedPatron;
       }

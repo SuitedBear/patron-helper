@@ -12,6 +12,13 @@ const Importer = {
     ['Ostatnia wpłata', 'updatedAt']
   ]),
 
+  apiDataMap: new Map([
+    ['name', 'name'],
+    ['email', 'email'],
+    ['amount', 'supportAmount'],
+    []
+  ]),
+
   conversionMap: new Set([
     'supportAmount'
   ]),

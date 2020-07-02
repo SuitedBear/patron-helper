@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/', async (req, res, next) => {
+router.get('/status', async (req, res, next) => {
   try {
     const statusList = await models.Status.findAll();
     return res.send(statusList);
