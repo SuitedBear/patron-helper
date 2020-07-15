@@ -11,6 +11,7 @@ const getTokenFromHeader = (req) => {
 
 const isAuth = jwt({
   secret: config.jwtSignature,
+  algorithms: ['HS256'],
   userProperty: 'token',
   getToken: getTokenFromHeader
 });
