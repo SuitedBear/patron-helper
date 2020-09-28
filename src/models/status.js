@@ -6,6 +6,11 @@ const status = (sequelize, DataTypes) => {
     }
   });
 
+  Status.associate = models => {
+    Status.hasMany(models.LevelStatus);
+    Status.hasMany(models.Todo);
+  };
+
   return Status;
 };
 

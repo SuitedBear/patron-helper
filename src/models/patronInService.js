@@ -32,11 +32,14 @@ const patronInService = (sequelize, DataTypes) => {
     endDate: {
       type: DataTypes.DATEONLY
     }
+  }, {
+    tableName: 'patronsInService'
   });
 
   PatronInService.associate = models => {
     PatronInService.belongsTo(models.Service, { foreignKey: 'serviceId' });
     PatronInService.belongsTo(models.Patron, { foreignKey: 'patronId' });
+    PatronInService.hasMany(models.Todo);
   };
 
   PatronInService.getActive = async () => {

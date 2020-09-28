@@ -1,19 +1,14 @@
 const todo = (sequelize, DataTypes) => {
   const Todo = sequelize.define('todo', {
-    status: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 2
-    },
-    levelId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    rewardId: {
+    statusId: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
     patronId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    rewardId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
@@ -21,14 +16,10 @@ const todo = (sequelize, DataTypes) => {
 
   Todo.associate = models => {
     // nie kaskadować przy kasowaniu
-    Todo.belongsTo(models.Level, { foreignKey: 'levelId' });
-    // Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
+    Todo.belongsTo(models.PatronInService, { foreignKey: 'patronId' });
     Todo.belongsTo(models.Reward, { foreignKey: 'rewardId' });
-    // need user "1" for multi rewards
-    Todo.belongsTo(models.PatronInService, {
-      foreignKey: 'patronId',
-      constrains: false
-    });
+    // find a way to make status pool level-dependant
+    Todo.belongsTo(models.Status, { foreignKey: 'statusId' });
   };
 
   Todo.setTodo = async (id, status, rewardId) => {

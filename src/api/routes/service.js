@@ -5,6 +5,7 @@ import ServiceManager from '../../services/serviceManager';
 import Todo from '../../services/todo';
 import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
+import models from '../../models';
 
 const router = Router();
 
@@ -69,6 +70,20 @@ router.delete('/:serviceId',
     }
   }
 );
+
+router.get('/:serviceId/rewards', async (req, res, next) => {
+  try {
+    logger.debug('get reward list for service');
+    const rewardList = await models.Reward.findAll({
+      // where: {
+      //   serviceId: req.context.serviceId
+      // }
+    });
+    return res.send(rewardList);
+  } catch (e) {
+    return next(e);
+  }
+});
 
 router.get('/:serviceId/complex', async (req, res, next) => {
   try {

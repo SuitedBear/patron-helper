@@ -23,7 +23,8 @@ const models = {
   Patron: sequelize.import('./patron'),
   PatronInService: sequelize.import('./patronInService'),
   Reward: sequelize.import('./reward'),
-  Todo: sequelize.import('./todo')
+  Todo: sequelize.import('./todo'),
+  LevelStatus: sequelize.import('./levelStatus')
 };
 
 Object.keys(models).forEach(model => {
@@ -33,8 +34,8 @@ Object.keys(models).forEach(model => {
 });
 
 const populateDatabase = async () => {
-  await models.Status.create({ id: 1, name: 'done' });
-  await models.Status.create({ id: 2, name: 'new' });
+  await models.Status.create({ id: 1, name: 'new' });
+  await models.Status.create({ id: 2, name: 'done' });
   await models.Patron.create({
     id: 1,
     name: 'multiuser',

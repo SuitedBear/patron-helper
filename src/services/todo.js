@@ -13,7 +13,7 @@ const Todo = {
   ComplexListTodos: async (serviceId) => {
     const todoList = models.Todo.findAll({
       where: {
-        '$level.serviceId$': serviceId
+        '$reward.level.serviceId$': serviceId
       },
       include: [
         {
@@ -26,15 +26,21 @@ const Todo = {
         },
         {
           model: models.Reward,
-          attributes: ['name']
+          as: 'reward',
+          attributes: ['name'],
+          include: {
+            model: models.Level,
+            as: 'level',
+            attributes: ['id', 'serviceId']
+          }
         },
         {
-          model: models.Level,
-          as: 'level',
-          attributes: ['serviceId', 'statusList']
+          model: models.Status,
+          as: 'status',
+          attributes: ['id', 'name']
         }
       ],
-      attributes: ['id', 'status', 'rewardId', 'updatedAt'],
+      attributes: ['id', 'statusId', 'rewardId', 'updatedAt'],
       raw: false
     });
     return todoList;

@@ -25,12 +25,13 @@ const level = (sequelize, DataTypes) => {
     once: DataTypes.BOOLEAN,
     // how many patrons could qualify
     // 0 - no limit
-    limit: DataTypes.INTEGER,
-    statusList: DataTypes.ARRAY(DataTypes.INTEGER)
+    limit: DataTypes.INTEGER
   });
 
   Level.associate = models => {
     Level.belongsTo(models.Service, { foreignKey: 'serviceId' });
+    Level.hasMany(models.LevelStatus);
+    Level.hasMany(models.Reward);
   };
 
   return Level;

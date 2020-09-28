@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import models from '../models';
 import routes from '../api';
+import logger from './logger';
 
 export default ({ app }) => {
   // for Heroku etc to show real origin IP in logs
@@ -39,11 +40,10 @@ export default ({ app }) => {
     return next(err);
   });
   app.use((err, req, res, next) => {
+    logger.error(`Unhandled error: ${err.message}`);
     res.status(err.status || 500);
-    res.json({
-      errors: {
-        message: err.message
-      }
+    res.send({
+      message: 'Ups! Something went wrong :('
     });
   });
 };

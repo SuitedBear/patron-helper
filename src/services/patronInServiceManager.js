@@ -88,7 +88,7 @@ const PatronInServiceManager = {
   ListPatronsInService: async (serviceId) => {
     const output = await models.PatronInService.findAll({
       where: {
-        serviceId: serviceId
+        serviceId
       }
     });
     return output;
