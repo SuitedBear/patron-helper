@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== 'development') {
 transports.push(
   new winston.transports.File({
     filename: './logs/error.log',
-    level: 'error'
+    level: (process.env.FILE_LOG_LEVEL || 'error')
   })
 );
 
