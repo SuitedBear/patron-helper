@@ -15,8 +15,15 @@ const Importer = {
   apiDataMap: new Map([
     ['name', 'name'],
     ['email', 'email'],
+    ['firstName', 'firstName'],
+    ['lastName', 'lastName'],
     ['amount', 'supportAmount'],
-    []
+    ['lastPaymentAt', 'lastPayment'],
+    ['surchargeToAmount', 'surcharge'],
+    ['totalMonths', 'totalMonths'],
+    ['totalAmount', 'totalAmount'],
+    ['endDate', 'endDate']
+
   ]),
 
   conversionMap: new Set([
@@ -26,7 +33,7 @@ const Importer = {
   FormatEntry: (entry) => {
     const patron = {};
     for (const key of Object.keys(entry)) {
-      const pos = Importer.dataMap.get(key);
+      const pos = Importer.apiDataMap.get(key);
       if (pos) {
         let val = entry[key];
         if (Importer.conversionMap.has(pos)) {
@@ -35,7 +42,9 @@ const Importer = {
         patron[pos] = val;
       }
     }
-    patron.active = true;
+    if (patron.endDate === '-') patron.endDate = Date.now();
+    if (patron.surcharge === null) patron.surcharge = 0;
+    patron.active = (entry.status === 'aktywna');
     return patron;
   },
 
@@ -55,6 +64,12 @@ const Importer = {
       addedPatrons.push(addedPatron);
     }
     return addedPatrons;
+  },
+
+  UpdateInactive: async (data) => {
+    for (const patron of data) {
+      await PatronsMngr.EditActiveByMail(patron.email, false);
+    }
   },
 
   ImportData: async (serviceId, data) => {

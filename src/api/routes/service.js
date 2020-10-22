@@ -6,6 +6,7 @@ import Todo from '../../services/todo';
 import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
 import models from '../../models';
+import { ApiHandler } from '../../services/apiHandler';
 
 const router = Router();
 
@@ -26,9 +27,11 @@ router.post('/new', async (req, res, next) => {
   const user = req.context.me;
   if (!user) return res.status(401).send('Not logged in');
   try {
-    const { name, link } = req.body;
+    const { name, apiLink, apiKey } = req.body;
     const newService =
-      await ServiceManager.AddService(name, link, user.id);
+      await ServiceManager.AddService(
+        name, apiLink, apiKey, user.id
+      );
     return res.send(newService);
   } catch (e) {
     return next(e);
@@ -56,6 +59,23 @@ router.use('/:serviceId', (req, _res, next) => {
   return next();
 });
 
+router.get('/:serviceId/api', async (req, res, next) => {
+  try {
+    const service =
+      await ServiceManager.FindServiceById(req.context.serviceId);
+    if (service) {
+      logger.debug(`calling API ${service.apiLink}`);
+      const test = await ApiHandler.GetPatronsFromApi(
+        service.apiLink, service.apiKey, req.context.serviceId);
+      logger.debug(test);
+      return res.send(test);
+    }
+  } catch (e) {
+    logger.error(`Error in API call:\n${e}`);
+    next(e);
+  }
+});
+
 router.delete('/:serviceId',
   async (req, res, next) => {
     const user = req.context.me;
@@ -75,9 +95,14 @@ router.get('/:serviceId/rewards', async (req, res, next) => {
   try {
     logger.debug('get reward list for service');
     const rewardList = await models.Reward.findAll({
-      // where: {
-      //   serviceId: req.context.serviceId
-      // }
+      where: {
+        '$level.serviceId$': req.context.serviceId
+      },
+      include: {
+        model: models.Level,
+        as: 'level',
+        attributes: ['serviceId']
+      }
     });
     return res.send(rewardList);
   } catch (e) {

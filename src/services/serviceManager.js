@@ -3,13 +3,19 @@ import logger from '../loaders/logger';
 
 const ServiceManager = {
   // services management
-  AddService: async (name, link, ownerId) => {
+  AddService: async (name, apiLink, apiKey, ownerId) => {
     logger.info(`creating new service: ${name} for ${ownerId}`);
     try {
       const newService = await models.Service.create({
         name,
-        link,
+        apiLink,
+        apiKey,
         userId: ownerId
+      });
+      await models.PatronInService.create({
+        patronId: 1,
+        serviceId: newService.id,
+        supportAmount: 0
       });
       // logger.info('created new service', newService);
       return { newService };

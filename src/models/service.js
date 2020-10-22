@@ -4,7 +4,10 @@ const service = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       unique: true
     },
-    link: {
+    apiLink: {
+      type: DataTypes.TEXT
+    },
+    apiKey: {
       type: DataTypes.TEXT
     },
     userId: {
