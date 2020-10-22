@@ -21,7 +21,7 @@ const Todo = {
           attributes: ['id', 'patronId', 'notes', 'active', 'supportAmount'],
           include: {
             model: models.Patron,
-            attributes: ['id', 'name', 'email']
+            attributes: ['id', 'name', 'firstName', 'lastName', 'email', 'address']
           }
         },
         {
@@ -40,7 +40,7 @@ const Todo = {
           attributes: ['id', 'name']
         }
       ],
-      attributes: ['id', 'statusId', 'rewardId', 'updatedAt'],
+      attributes: ['id', 'name', 'statusId', 'rewardId', 'updatedAt'],
       raw: false
     });
     return todoList;
@@ -60,7 +60,8 @@ const Todo = {
           // review method and add status check
           models.Todo.findByPk(pos.id, { transaction: t })
             .then(record => record.update({
-              status: pos.status,
+              name: pos.name,
+              statusId: pos.statusId,
               rewardId: pos.rewardId
             }, { transaction: t }))
         );

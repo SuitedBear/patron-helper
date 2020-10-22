@@ -1,5 +1,9 @@
 const todo = (sequelize, DataTypes) => {
   const Todo = sequelize.define('todo', {
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
     statusId: {
       type: DataTypes.INTEGER,
       allowNull: false

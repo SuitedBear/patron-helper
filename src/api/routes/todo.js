@@ -26,26 +26,26 @@ router.get('/rewards', async (req, res, next) => {
   }
 });
 
-router.get('/reward-gen', async (req, res, next) => {
-  try {
-    logger.debug('generating rewards');
-    const output = await RewardGenerator.GenerateRewards();
-    logger.debug('rewards generated');
-    return res.send(output);
-  } catch (e) {
-    return next(e);
-  }
-});
+// router.get('/reward-gen', async (req, res, next) => {
+//   try {
+//     logger.debug('generating rewards');
+//     const output = await RewardGenerator.GenerateRewards();
+//     logger.debug('rewards generated');
+//     return res.send(output);
+//   } catch (e) {
+//     return next(e);
+//   }
+// });
 
-router.get('/todo-gen', async (req, res, next) => {
-  try {
-    logger.debug('generating todos');
-    const output = await Todo.GenerateTodos();
-    return res.send(output);
-  } catch (e) {
-    return next(e);
-  }
-});
+// router.get('/todo-gen', async (req, res, next) => {
+//   try {
+//     logger.debug('generating todos');
+//     const output = await Todo.GenerateTodos();
+//     return res.send(output);
+//   } catch (e) {
+//     return next(e);
+//   }
+// });
 
 router.get('/generate', async (req, res, next) => {
   try {

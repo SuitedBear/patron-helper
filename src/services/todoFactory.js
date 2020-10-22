@@ -18,14 +18,21 @@ const generateMulti = async (lvl) => {
       }
     }
   });
-  if (reward) {
+  const multipatron = await models.PatronInService.findOne({
+    where: {
+      patronId: 1
+    }
+  });
+  if (reward && multipatron) {
     const todo = await models.Todo.findOrCreate({
       where: {
         rewardId: reward.id
       },
       defaults: {
-        levelId: lvl.id,
-        patronId: 1
+        name: `${reward.name}`,
+        // multi patron template
+        patronId: multipatron.id,
+        statusId: 1
       }
     });
     if (todo[1]) return todo[0];
@@ -43,20 +50,25 @@ const generateOnce = async (lvl) => {
   if (reward) {
     const eligiblePatrons = await models.PatronInService.findAll({
       where: {
+        id: {
+          [Sequelize.Op.ne]: 1
+        },
         supportAmount: {
           [Sequelize.Op.gte]: lvl.value
         },
+        // check, seems fishy
         updatedAt: getPastDate(lvl.cyclic)
       }
     });
     for (const patron of eligiblePatrons) {
       const todo = await models.Todo.findOrCreate({
         where: {
-          levelId: lvl.id,
+          rewardId: reward.id,
           patronId: patron.id
         },
         defaults: {
-          rewardId: reward.id
+          name: `${reward.name} for ${patron.patronId}`,
+          statusId: 1
         }
       });
       if (todo[1]) todoList.push(todo[0]);
@@ -77,6 +89,9 @@ const generateGeneric = async (lvl) => {
   if (rewardList.length > 0) {
     const eligiblePatrons = await models.PatronInService.findAll({
       where: {
+        id: {
+          [Sequelize.Op.ne]: 1
+        },
         supportAmount: {
           [Sequelize.Op.gte]: lvl.value
         }
@@ -85,15 +100,22 @@ const generateGeneric = async (lvl) => {
     for (const patron of eligiblePatrons) {
       const todo = await models.Todo.findOrCreate({
         where: {
-          levelId: lvl.id,
+          '$reward.levelId$': lvl.id,
           patronId: patron.id,
           createdAt: {
             [Sequelize.Op.gte]: getPastDate(lvl.cyclic)
           }
         },
+        include: {
+          model: models.Reward,
+          as: 'reward',
+          attributes: ['levelId']
+        },
         defaults: {
+          name: `${rewardList[0].name} for ${patron.patronId}`,
           createdAt: new Date(),
-          rewardId: rewardList[0].id
+          rewardId: rewardList[0].id,
+          statusId: 1
         }
       });
       if (todo[1]) todoList.push(todo[0]);
@@ -104,26 +126,26 @@ const generateGeneric = async (lvl) => {
 
 // applicable for cyclic and once, generated once for each reward
 // reward generation handles condition chcecks
-const generateIndividual = async (lvl) => {
-  const todoList = [];
-  const rewardList = await models.Reward.findAll({
-    where: {
-      levelId: lvl.id
-    }
-  });
-  for (const reward of rewardList) {
-    // check if patron still active
-    const todo = await models.Todo.findOrCreate({
-      where: {
-        levelId: lvl.id,
-        rewardId: reward.id,
-        patronId: reward.patronId
-      }
-    });
-    if (todo[1]) todoList.push(todo[0]);
-  }
-  return todoList;
-};
+// const generateIndividual = async (lvl) => {
+//   const todoList = [];
+//   const rewardList = await models.Reward.findAll({
+//     where: {
+//       levelId: lvl.id
+//     }
+//   });
+//   for (const reward of rewardList) {
+//     // check if patron still active
+//     const todo = await models.Todo.findOrCreate({
+//       where: {
+//         levelId: lvl.id,
+//         rewardId: reward.id,
+//         patronId: reward.patronId
+//       }
+//     });
+//     if (todo[1]) todoList.push(todo[0]);
+//   }
+//   return todoList;
+// };
 
 const TodoFactory = async (lvl) => {
   const todoList = [];
@@ -134,9 +156,9 @@ const TodoFactory = async (lvl) => {
     } else if (lvl.once) {
       const todos = await generateOnce(lvl);
       todoList.push(...todos);
-    } else if (lvl.individual) {
-      const todos = await generateIndividual(lvl);
-      todoList.push(...todos);
+    // } else if (lvl.individual) {
+    //   const todos = await generateIndividual(lvl);
+    //   todoList.push(...todos);
     } else {
       const todos = await generateGeneric(lvl);
       todoList.push(...todos);
