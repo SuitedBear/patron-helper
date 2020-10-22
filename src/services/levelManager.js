@@ -12,9 +12,9 @@ const LevelManager = {
       value: Number.parseInt(params.value),
       limit: (Number.parseInt(params.limit) || 0),
       cyclic: (Number.parseInt(params.cyclic) || 0),
-      multi: (params.multi === 'true'),
-      individual: (params.individual === 'true'),
-      once: (params.once === 'true')
+      multi: params.multi,
+      individual: params.individual,
+      once: params.once
     };
     logger.info(`creating new level in service:${params.serviceId}`);
     const newSubLevel = await models.Level.create(queryParams);
@@ -28,7 +28,7 @@ const LevelManager = {
         statusId: 2
       }
     ]);
-    return { newSubLevel };
+    return newSubLevel;
   },
 
   RemoveSubLevel: async (subLevelId) => {
@@ -74,6 +74,7 @@ const LevelManager = {
     const record = await models.Level.findByPk(params.subLevelId);
     if (record) {
       logger.info('updating...');
+      logger.debug(`multi:${params.multi} individual:${params.individual} once:${params.once}`);
       const queryParams = {
         // name needs sanitization
         name: (params.name || record.name),
@@ -81,9 +82,9 @@ const LevelManager = {
         value: (Number.parseInt(params.value) || record.value),
         limit: (Number.parseInt(params.limit) || record.limit),
         cyclic: (Number.parseInt(params.cyclic) || record.cyclic),
-        multi: (params.multi !== undefined) ? (params.multi === 'true') : record.multi,
-        individual: (params.individual !== undefined) ? (params.individual === 'true') : record.multi,
-        once: (params.once !== undefined) ? (params.once === 'true') : record.once
+        multi: (params.multi !== undefined) ? params.multi : record.multi,
+        individual: (params.individual !== undefined) ? params.individual : record.multi,
+        once: (params.once !== undefined) ? params.once : record.once
       };
       const output = await record.update(queryParams);
       return output;

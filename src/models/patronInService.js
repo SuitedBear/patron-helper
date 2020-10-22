@@ -6,10 +6,11 @@ const patronInService = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    // consider association table
     patronId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true
+      allowNull: false
+      // unique: true
     },
     supportAmount: {
       type: DataTypes.INTEGER,

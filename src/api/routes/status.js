@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import StatusManager from '../../services/statusManager';
 import logger from '../../loaders/logger';
-import models from '../../models';
-// import models from '../../models';
 
 const router = Router();
 
@@ -34,7 +32,7 @@ router.post('/assign', async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-})
+});
 
 router.get('/:levelId', async (req, res, next) => {
   try {

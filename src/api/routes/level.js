@@ -2,7 +2,7 @@ import { Router } from 'express';
 import LevelManager from '../../services/levelManager';
 import status from './status';
 import logger from '../../loaders/logger';
-import models from '../../models';
+// import models from '../../models';
 
 const router = Router();
 

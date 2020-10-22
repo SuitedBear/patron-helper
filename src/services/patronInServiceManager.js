@@ -38,6 +38,25 @@ const PatronInServiceManager = {
     return `Patron ${id} not found`;
   },
 
+  EditActiveByMail: async (mail, active) => {
+    const editedPatron = await models.PatronInService.findOne({
+      where: {
+        '$patron.email$': mail
+      },
+      include: {
+        model: models.Patron,
+        as: 'patron',
+        attributes: ['email']
+      }
+    });
+    if (editedPatron) {
+      const output = await editedPatron.update({
+        active
+      });
+      logger.debug(`updated ${output}`);
+    }
+  },
+
   PatronQueryArray: (patronInServiceList, t) => {
     const patronList = patronInServiceList.map(obj => obj.patron);
     const newQueryArray = [];
@@ -53,7 +72,8 @@ const PatronInServiceManager = {
       newQueryArray.push(
         models.Patron.findByPk(pos.id, { transaction: t })
           .then(record => record.update({
-            name: pos.name
+            name: pos.name,
+            address: pos.address
           }, { transaction: t }))
       );
     }
@@ -123,8 +143,12 @@ const PatronInServiceManager = {
   AddNewPatron: async (serviceId, data) => {
     const patron = await models.Patron.findOrCreate({
       where: {
-        email: data.email,
-        name: data.name
+        email: data.email
+      },
+      defaults: {
+        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName
       }
     });
     const newPatronInService = await models.PatronInService.findOrCreate({
