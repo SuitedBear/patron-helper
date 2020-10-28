@@ -121,6 +121,16 @@ router.get('/:serviceId/complex', async (req, res, next) => {
   }
 });
 
+router.get('/:serviceId/countable', async (req, res, next) => {
+  try {
+    const countableTodos =
+      await Todo.CountableList(req.context.serviceId);
+    return res.send(countableTodos);
+  } catch (e) {
+    return next(e);
+  }
+});
+
 router.post('/:serviceId/bulkedittodo', async (req, res, next) => {
   try {
     const { data, fields } = req.body;

@@ -122,7 +122,9 @@ const PatronInServiceManager = {
       include: [
         {
           model: models.Patron,
-          attributes: ['id', 'name', 'email']
+          attributes: [
+            'id', 'name', 'firstName', 'lastName', 'email', 'address'
+          ]
         }
       ],
       raw: false

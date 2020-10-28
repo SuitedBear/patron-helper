@@ -40,7 +40,7 @@ const patronInService = (sequelize, DataTypes) => {
   PatronInService.associate = models => {
     PatronInService.belongsTo(models.Service, { foreignKey: 'serviceId' });
     PatronInService.belongsTo(models.Patron, { foreignKey: 'patronId' });
-    PatronInService.hasMany(models.Todo);
+    PatronInService.hasMany(models.Todo, { foreignKey: 'patronId' });
   };
 
   PatronInService.getActive = async () => {
