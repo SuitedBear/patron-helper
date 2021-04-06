@@ -12,13 +12,12 @@ export default () => {
   // route handlers
   mainRouter.use('/', auth);
   // @TODO: should be restricted/removed
-  mainRouter.use('/users', user);
+  // mainRouter.use('/users', user);
   mainRouter.use(isAuth, attachCurrentUser);
   // patrons endpoint propably isn't needed
   // patronsInService should provide patron data
   mainRouter.use('/patrons', patron);
   mainRouter.use('/services', service);
-  mainRouter.use('/todo', todo);
 
   return mainRouter;
 };

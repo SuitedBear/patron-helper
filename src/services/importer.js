@@ -80,6 +80,10 @@ const Importer = {
     } catch (e) {
       logger.error('Error while injecting batch data to db');
       logger.error(e);
+      logger.error(e.errors.length());
+      for (const validationError of e.errors) {
+        logger.error(validationError);
+      }
     }
   }
 };
