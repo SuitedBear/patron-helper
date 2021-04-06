@@ -81,6 +81,7 @@ const PatronInServiceManager = {
   },
 
   BulkEdit: async (patronInServiceList) => {
+    logger.debug(patronInServiceList);
     const result = await sequelize.transaction(t => {
       const queryTable =
         PatronInServiceManager.PatronQueryArray(patronInServiceList, t);

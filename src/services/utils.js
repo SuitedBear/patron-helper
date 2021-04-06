@@ -6,6 +6,17 @@ const getPastDate = (months) => {
   return date;
 };
 
+const getPastDateString = (months) => {
+  return getPastDate(months).toISOString().slice(0, 10);
+};
+
+const getDateString = () => {
+  const today = new Date();
+  return today.toISOString().slice(0, 10);
+}
+
 export {
-  getPastDate
+  getPastDate,
+  getPastDateString,
+  getDateString
 };

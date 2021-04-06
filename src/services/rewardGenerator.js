@@ -4,6 +4,7 @@ import models from '../models';
 import logger from '../loaders/logger';
 import RewardFactory from './rewardFactory';
 
+// replace with a db function
 const filterUnusedLevels = async (levels) => {
   const isActive = async (lvl) => {
     const activePatron = await models.PatronInService.findOne({

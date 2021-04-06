@@ -11,7 +11,7 @@ const ApiHandler = {
       logger.info('Active users updated');
     };
     const packInactive = async data => {
-      await Importer.UpdateInactive(data);
+      // await Importer.UpdateInactive(data);
       logger.info('Inactive users updated');
     };
     dataEmitter.on('error', e => {

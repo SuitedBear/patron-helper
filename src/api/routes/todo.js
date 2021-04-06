@@ -1,73 +1,42 @@
 import { Router } from 'express';
 import Todo from '../../services/todo';
-import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
-import models from '../../models';
 
 const router = Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/complex', async (req, res, next) => {
   try {
-    logger.info('getting todo list');
-    const todoList = await Todo.ListTodos();
+    logger.debug(`get complex todo list for service: ${req.context.serviceId}`);
+    const todoList =
+      await Todo.ComplexListTodos(req.context.serviceId);
     return res.send(todoList);
   } catch (e) {
     return next(e);
   }
 });
 
-router.get('/rewards', async (req, res, next) => {
+router.get('/countable', async (req, res, next) => {
   try {
-    logger.info('getting reward list');
-    const rewardList = await models.Reward.findAll();
-    return res.send(rewardList);
+    const countableTodos =
+      await Todo.CountableList(req.context.serviceId);
+    return res.send(countableTodos);
   } catch (e) {
     return next(e);
   }
 });
 
-// router.get('/reward-gen', async (req, res, next) => {
-//   try {
-//     logger.debug('generating rewards');
-//     const output = await RewardGenerator.GenerateRewards();
-//     logger.debug('rewards generated');
-//     return res.send(output);
-//   } catch (e) {
-//     return next(e);
-//   }
-// });
-
-// router.get('/todo-gen', async (req, res, next) => {
-//   try {
-//     logger.debug('generating todos');
-//     const output = await Todo.GenerateTodos();
-//     return res.send(output);
-//   } catch (e) {
-//     return next(e);
-//   }
-// });
-
-router.get('/generate', async (req, res, next) => {
+router.post('/bulkedittodo', async (req, res, next) => {
   try {
-    logger.debug('generating rewards and todos');
-    await RewardGenerator.GenerateRewards();
-    logger.debug('rewards generated');
-    await Todo.GenerateTodos();
-    logger.info('rewards and todos generated');
-    return res.send('rewards and todos generated');
-  } catch (e) {
-    return next(e);
-  }
-});
-
-router.post('/:id', async (req, res, next) => {
-  try {
-    const { status, rewardId } = req.body;
-    const rIdConverted =
-      (rewardId) ? Number.parseInt(rewardId, 10) : null;
-    const output =
-      await models.Todo.setTodo(req.params.id, status, rIdConverted);
-    return res.send(output);
+    const { data, fields } = req.body;
+    const result = await Todo.BulkEdit(
+      data,
+      fields
+    );
+    logger.debug(result);
+    const todoComplexList = await Todo.ComplexListTodos(
+      Number.parseInt(req.context.serviceId)
+    );
+    return res.send(todoComplexList);
   } catch (e) {
     return next(e);
   }

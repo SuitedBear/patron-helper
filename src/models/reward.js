@@ -6,6 +6,10 @@ const reward = (sequelize, DataTypes) => {
     levelId: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    dateFor: {
+      type: DataTypes.DATEONLY,
+      defaultValue: DataTypes.NOW
     }
   });
 

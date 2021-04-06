@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 import logger from '../loaders/logger';
-import { getPastDate } from './utils';
+import { getDateString, getPastDateString } from './utils';
 import models from '../models';
 
 // multi:                 check cyclic,     single todo
@@ -71,13 +71,16 @@ import models from '../models';
 //   return rewardList;
 // };
 
+// returns date string in format YYYY-MM-DD
+
 const generateOnce = async (lvl) => {
   const reward = await models.Reward.findOrCreate({
     where: {
       levelId: lvl.id
     },
     defaults: {
-      name: `${lvl.name}`
+      name: `${lvl.name}`,
+      dateFor: getDateString()
     }
   });
   return (reward[1]) ? [reward[0]] : null;
@@ -89,13 +92,14 @@ const generateGeneral = async (lvl) => {
   const reward = await models.Reward.findOrCreate({
     where: {
       levelId: lvl.id,
-      createdAt: {
-        [Sequelize.Op.gt]: getPastDate(lvl.cyclic)
+      dateFor: {
+        [Sequelize.Op.gt]: getPastDateString(lvl.cyclic)
       }
     },
     defaults: {
       name: `${lvl.name} ${dateString}`,
-      createdAt: date
+      // createdAt: date,
+      dateFor: getDateString()
     }
   });
   return (reward[1]) ? [reward[0]] : null;

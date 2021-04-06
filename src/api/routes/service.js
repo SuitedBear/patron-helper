@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import level from './level';
-import patron from './patronInService';
+import levelRoute from './level';
+import patronRoute from './patronInService';
+import todoRoute from './todo'
+import rewardRoute from './reward'
 import ServiceManager from '../../services/serviceManager';
 import Todo from '../../services/todo';
 import RewardGenerator from '../../services/rewardGenerator';
 import logger from '../../loaders/logger';
-import models from '../../models';
+// import models from '../../models';
 import { ApiHandler } from '../../services/apiHandler';
 
 const router = Router();
@@ -53,6 +55,22 @@ router.get('/:serviceId', async (req, res, next) => {
   }
 });
 
+// check
+router.delete('/:serviceId',
+  async (req, res, next) => {
+    const user = req.context.me;
+    if (!user) return res.status(401).send('Not logged in');
+    try {
+      const output =
+        await ServiceManager.RemoveService(req.params.serviceId);
+      logger.debug(output); // 1-deleted
+      return res.send(`Service id:${req.params.serviceId} deleted`);
+    } catch (e) {
+      return next(e);
+    }
+  }
+);
+
 router.use('/:serviceId', (req, _res, next) => {
   // check if id exists in db
   req.context.serviceId = req.params.serviceId;
@@ -65,10 +83,10 @@ router.get('/:serviceId/api', async (req, res, next) => {
       await ServiceManager.FindServiceById(req.context.serviceId);
     if (service) {
       logger.debug(`calling API ${service.apiLink}`);
-      const test = await ApiHandler.GetPatronsFromApi(
+      const apiInsert = await ApiHandler.GetPatronsFromApi(
         service.apiLink, service.apiKey, req.context.serviceId);
-      logger.debug(test);
-      return res.send(test);
+      logger.debug(apiInsert);
+      return res.send(apiInsert);
     }
   } catch (e) {
     logger.error(`Error in API call:\n${e}`);
@@ -76,77 +94,7 @@ router.get('/:serviceId/api', async (req, res, next) => {
   }
 });
 
-router.delete('/:serviceId',
-  async (req, res, next) => {
-    const user = req.context.me;
-    if (!user) return res.status(401).send('Not logged in');
-    try {
-      const output =
-        await ServiceManager.RemoveService(req.context.serviceId);
-      logger.debug(output); // 1-deleted
-      return res.send(`Service id:${req.params.serviceId} deleted`);
-    } catch (e) {
-      return next(e);
-    }
-  }
-);
 
-router.get('/:serviceId/rewards', async (req, res, next) => {
-  try {
-    logger.debug('get reward list for service');
-    const rewardList = await models.Reward.findAll({
-      where: {
-        '$level.serviceId$': req.context.serviceId
-      },
-      include: {
-        model: models.Level,
-        as: 'level',
-        attributes: ['serviceId']
-      }
-    });
-    return res.send(rewardList);
-  } catch (e) {
-    return next(e);
-  }
-});
-
-router.get('/:serviceId/complex', async (req, res, next) => {
-  try {
-    logger.debug(`get complex todo list for service: ${req.context.serviceId}`);
-    const todoList =
-      await Todo.ComplexListTodos(req.context.serviceId);
-    return res.send(todoList);
-  } catch (e) {
-    return next(e);
-  }
-});
-
-router.get('/:serviceId/countable', async (req, res, next) => {
-  try {
-    const countableTodos =
-      await Todo.CountableList(req.context.serviceId);
-    return res.send(countableTodos);
-  } catch (e) {
-    return next(e);
-  }
-});
-
-router.post('/:serviceId/bulkedittodo', async (req, res, next) => {
-  try {
-    const { data, fields } = req.body;
-    const result = await Todo.BulkEdit(
-      data,
-      fields
-    );
-    logger.debug(result);
-    const todoComplexList = await Todo.ComplexListTodos(
-      Number.parseInt(req.context.serviceId)
-    );
-    return res.send(todoComplexList);
-  } catch (e) {
-    return next(e);
-  }
-});
 
 router.get('/:serviceId/generate', async (req, res, next) => {
   try {
@@ -161,7 +109,9 @@ router.get('/:serviceId/generate', async (req, res, next) => {
   }
 });
 
-router.use('/:serviceId/levels', level);
-router.use('/:serviceId/patrons', patron);
+router.use('/:serviceId/levels', levelRoute);
+router.use('/:serviceId/patrons', patronRoute);
+router.use('/:serviceId/todo', todoRoute);
+router.use('/:serviceId/rewards', rewardRoute);
 
 export default router;

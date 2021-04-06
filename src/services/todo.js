@@ -1,5 +1,3 @@
-import Sequelize from 'sequelize';
-
 import models, { sequelize } from '../models';
 import logger from '../loaders/logger';
 import TodoFactory from './todoFactory';
@@ -29,7 +27,7 @@ const Todo = {
         {
           model: models.Reward,
           as: 'reward',
-          attributes: ['name'],
+          attributes: ['id', 'name', 'levelId'],
           include: {
             model: models.Level,
             as: 'level',
@@ -51,10 +49,7 @@ const Todo = {
   CountableList: async (serviceId) => {
     const todoList = models.Todo.findAll({
       where: {
-        '$reward.level.serviceId$': serviceId,
-        statusId: {
-          [Sequelize.Op.not]: 2
-        }
+        '$reward.level.serviceId$': serviceId
       },
       include: {
         model: models.Reward,
@@ -66,7 +61,7 @@ const Todo = {
         },
         attributes: ['id', 'levelId']
       },
-      attributes: ['id', 'patronId']
+      attributes: ['id', 'patronId', 'statusId']
     });
     return todoList;
   },

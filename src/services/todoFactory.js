@@ -18,9 +18,9 @@ const generateMulti = async (lvl) => {
       }
     }
   });
-  const multipatron = await models.PatronInService.findOne({
+  const multipatron = await models.Patron.findOne({
     where: {
-      patronId: 1
+      name: 'multiuser'
     }
   });
   if (reward && multipatron) {
@@ -150,12 +150,13 @@ const generateGeneric = async (lvl) => {
 const TodoFactory = async (lvl) => {
   const todoList = [];
   try {
-    if (lvl.multi) {
+    if (lvl.multi) { // ok
       const todo = await generateMulti(lvl);
       if (todo) todoList.push(todo);
     } else if (lvl.once) {
       const todos = await generateOnce(lvl);
       todoList.push(...todos);
+    // not significant
     // } else if (lvl.individual) {
     //   const todos = await generateIndividual(lvl);
     //   todoList.push(...todos);
